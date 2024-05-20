@@ -1,4 +1,4 @@
-package javaquinho.comidinhas;
+/*package javaquinho.comidinhas;
 
 import java.util.Scanner;
 
@@ -33,10 +33,6 @@ public class App {
             switch (opcao) {
 
                 case 1:   // Cadastrar cliente ou criar requisição
-                    /* 
-                    Se o cliente não estiver cadastrado, solicita os dados necessários e cria um novo cliente.
-                    Caso contrário, avança para a criação de uma nova requisição para o cliente existente.
-                    */
                     String nome,  telContato,  CPF;
                     System.out.println("Digite o CPF: ");
                     CPF = scanner.next();
@@ -61,9 +57,6 @@ public class App {
                     }
 
                 case 2:  
-                    /* 
-                    Cria uma nova requisição de mesa para um cliente existente.
-                    */
                     String cpf; 
                     int quantidadePessoas;
 
@@ -107,4 +100,4 @@ public class App {
 
         scanner.close(); // Fecha o Scanner para liberar recursos
     }
-}
+}*/

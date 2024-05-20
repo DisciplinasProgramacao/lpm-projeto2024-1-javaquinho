@@ -1,4 +1,5 @@
 package javaquinho.comidinhas;
+
 import java.util.Scanner;
 
 import javaquinho.comidinhas.models.Cliente;
@@ -9,9 +10,6 @@ public class AppJC {
     static Scanner teclado;
     static Restaurante restaurante;
 
-    /**
-     * "Limpa" a tela (códigos de terminal VT-100)
-     */
     public static void limparTela() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
@@ -42,7 +40,7 @@ public class AppJC {
         return opcao;
     }
 
-    static void mostrarFila(){
+    static void mostrarFila() {
         cabecalho();
         restaurante.filaDeEspera();
         pausa();
@@ -72,7 +70,9 @@ public class AppJC {
         String nome, telContato, CPF;
         System.out.print("Nome do cliente: ");
         nome = teclado.nextLine();
+        System.out.print("Telefone de contato: ");
         telContato = teclado.nextLine();
+        System.out.print("CPF: ");
         CPF = teclado.nextLine();
         Cliente novo = new Cliente(nome, telContato, CPF);
         System.out.println("Cliente cadastrado: " + novo);
@@ -88,16 +88,16 @@ public class AppJC {
         Requisicao novaRequisicao = new Requisicao(cliente, quantasPessoas);
         restaurante.adicionarRequisicaoFila(novaRequisicao);
         novaRequisicao = processarFila();
-        if(novaRequisicao!=null){
+        if (novaRequisicao != null) {
             System.out.println(novaRequisicao);
         } else {
-            System.out.println("Não há mesas disponíveis no momento. Requisição em espera");
+            System.out.println("Não há mesas disponíveis no momento. Requisição em espera.");
         }
         pausa();
     }
 
     static Requisicao processarFila() {
-       return restaurante.processarFila();
+        return restaurante.processarFila();
     }
 
     static void encerrarMesa() {
@@ -109,7 +109,7 @@ public class AppJC {
         if (finalizada != null) {
             System.out.println(finalizada);
         } else {
-            System.out.println("Mesa " + idMesa + " não está em atendimento");
+            System.out.println("Mesa " + idMesa + " não está em atendimento.");
         }
         pausa();
     }
@@ -127,15 +127,13 @@ public class AppJC {
                 case 4 -> encerrarMesa();
                 case 5 -> {
                     Requisicao atendida = processarFila();
-                    if(atendida!=null){
+                    if (atendida != null) {
                         System.out.println(atendida);
-                    }
-                    else{
+                    } else {
                         System.out.println("Fila vazia ou mesas não disponíveis. Favor verificar a situação.");
                     }
                     pausa();
                 }
-
             }
         } while (opcao != 0);
         teclado.close();
