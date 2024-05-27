@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -56,6 +57,33 @@ public class Requisicao {
 
     @Column(name = "encerrada", nullable = false)
     private boolean encerrada;
+
+
+
+
+
+
+    @OneToMany
+    @JoinColumn(name = "produto_id")
+    private List<Produto> produtos;
+
+    public Requisicao() {
+        this.produtos = new ArrayList<>();
+    }
+
+    /**
+     * Adiciona um produto à lista de produtos da requisição.
+     *
+     * @param produto O produto a ser adicionado.
+     */
+    public void adicionarProduto(Produto produto) {
+        this.produtos.add(produto);
+    }
+
+
+
+
+    
 
     // @OneToOne
     // @JoinColumn(name = "produtos", nullable = true)
