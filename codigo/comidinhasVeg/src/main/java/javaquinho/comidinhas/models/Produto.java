@@ -36,8 +36,8 @@ public class Produto {
     @JoinColumn(name = "menuId")
     private Menu menu;
 
-    // public String toString(){
+     public String toString(){
 
-    // return "ID: " + getId() + " nome: " + getNome() + " preço: R$" + getPreco();
-    // }
+     return "ID: " + getId() + " nome: " + getNome() + " preço: R$" + getPreco();
+     }
 }

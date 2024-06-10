@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.mapping.List;
+//import org.hibernate.annotations.Fetch;
+//import org.hibernate.annotations.FetchMode;
+//import org.hibernate.mapping.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -43,7 +43,7 @@ public class Menu {
 
     @JsonIgnoreProperties("menu")
     @OneToMany(mappedBy = "menu")
-    @Fetch(FetchMode.JOIN)
+   // @Fetch(FetchMode.JOIN)
     private Set<Produto> produtos;
 
     // @JoinColumn(name = "produto_id", nullable = false, updatable = false)
@@ -91,9 +91,9 @@ public class Menu {
     // return produtos.get(indice);
     // }
 
-    // public int tamanhoMenu() {
-    // return produtos.size();
-    // }
+   public int tamanhoMenu() {
+  return produtos.size();
+   }
 }
 
 /* 

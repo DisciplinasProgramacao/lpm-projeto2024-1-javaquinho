@@ -20,7 +20,6 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode
 public class Cliente {
-    
     public static final String TABLE_NAME = "cliente";
     
     @Id

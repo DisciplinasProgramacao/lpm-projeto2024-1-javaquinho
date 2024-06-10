@@ -22,7 +22,7 @@ import lombok.Setter;
 public class Mesa {
 	private static final String TABLE_NAME = "mesa";
 
-	// private static int ultimoID;
+ private static int ultimoID;
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,17 +35,9 @@ public class Mesa {
 	@Column(name = "ocupada", nullable = false)
 	private boolean ocupada;
 
-	// static{
-	// 	ultimoID = 0;
-	// }
-
-	// public Mesa(int capacidade) {
-	// 	this.capacidade = 2;
-	// 	if(capacidade>2)
-	// 		this.capacidade = capacidade;
-	// 	id = ++ultimoID;
-	// 	ocupada = false;
-	// }
+ static{
+ 	ultimoID = 0;
+ }
 
 	public void ocupar() {
 		ocupada = true;

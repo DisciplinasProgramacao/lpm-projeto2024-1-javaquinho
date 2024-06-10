@@ -1,263 +1,195 @@
-// package javaquinho.comidinhas.models;
-// import java.util.ArrayList;
+package javaquinho.comidinhas.models;
+import java.util.ArrayList;
 
+public class Restaurante {
+    private ArrayList<Mesa> mesas;
+    public ArrayList<Requisicao> filaAtendimento;
+    private ArrayList<Requisicao> historicoAtendimento;
+    private ArrayList<Cliente> listaClientes;
+    Menu menu;
 
-// public class Restaurante {
-//     private ArrayList<Mesa> mesas;
-//     public ArrayList<Requisicao> filaAtendimento;
-//     private ArrayList<Requisicao> historicoAtendimento;
-//     private ArrayList<Cliente> listaClientes;
-//     Menu menu;
+    public Restaurante() {
+        setFilaAtendimento(new ArrayList<Requisicao>());
+        setListaClientes(new ArrayList<Cliente>());
+        setHistoricoAtendimento(new ArrayList<Requisicao>());
+        iniciaMesas();
+        menu = new Menu();
+    }
 
-//     public Restaurante() {
-//         setfilaAtendimento(new ArrayList<Requisicao>());
-//         setlistaClientes(new ArrayList<Cliente>());
-//         setHistoricoAtendimento(new ArrayList<Requisicao>());
-//         iniciaMesas();
-//         menu = new Menu();
-//     }
+    private void setFilaAtendimento(ArrayList<Requisicao> filaAtendimento) {
+        this.filaAtendimento = filaAtendimento;
+    }
 
-//     private void setfilaAtendimento(ArrayList<Requisicao> filaAtendimento) {
-//         this.filaAtendimento = filaAtendimento;
-//     }
+    private void setHistoricoAtendimento(ArrayList<Requisicao> historicoAtendimento) {
+        this.historicoAtendimento = historicoAtendimento;
+    }
 
-//     private void setHistoricoAtendimento(ArrayList<Requisicao> historicoAtendimento) {
-//         this.historicoAtendimento = historicoAtendimento;
-//     }
+    private void setListaClientes(ArrayList<Cliente> listaClientes) {
+        this.listaClientes = listaClientes;
+    }
 
-//     private void setlistaClientes(ArrayList<Cliente> listaClientes) {
-//         this.listaClientes = listaClientes;
-//     }
+    private Mesa getMesa(int idMesa) {
+        Mesa mesaRetorno = null;
 
-//     private Mesa getMesa(int idMesa){
-//         Mesa mesaRetorno = null;
+        for (Mesa mesa : mesas) {
+            if (mesa.getIdMesa() == idMesa) {
+                mesaRetorno = mesa;
+            }
+        }
+        return mesaRetorno;
+    }
 
-//         for (Mesa mesa : mesas){
-//             if(mesa.getIdMesa() == idMesa){
-//                 mesaRetorno = mesa;
-//             }
-//         }
-//         return mesaRetorno;
-//     }
+    private void iniciaMesas() {
+        int[] capacidades = { 4, 6, 8 };
+        int[] quant = { 4, 4, 2 };
 
-//     private void iniciaMesas() {
-//         int[] capacidades = { 4, 6, 8 };
-//         int[] quant = { 4, 4, 2 };
+        mesas = new ArrayList<Mesa>();
+        Mesa mesa;
 
-//         mesas = new ArrayList<Mesa>();
-//         Mesa mesa;
+        for (int i = 0; i < quant.length; i++) {
+            int quantidade = quant[i];
+            for (int j = 0; j < quantidade; j++) {
+                mesa = new Mesa(null, capacidades[i], false);
+                mesas.add(mesa);
+            }
+        }
+    }
 
-//         for (int i = 0; i < quant.length; i++) {
-//             int quantidade = quant[i];
-//             for (int j = 0; j < quantidade; j++) {
-//                 mesa = new Mesa(capacidades[i]);
-//                 mesas.add(mesa);
-//             }
-//         }
-//     }
+    //public String getMenu() {
+    //    return menu.retornaMenu();
+    //}
 
-//     // public String getMenu(){
-//     //     return menu.retornaMenu();
-//     // }
-    
+    public Requisicao processarFila() {
+        Requisicao requisicao = null;
+        boolean alocado = false;
+        int indice = 0;
 
-//     /**
-//      * Método para alocar mesa com a primeira requisição disponível
-//      */
-//     public Requisicao processarFila() {
-//         Requisicao requisicao = null;
-//         boolean alocado = false;
-//         int indice = 0;
+        while (!alocado && indice < filaAtendimento.size()) {
+            requisicao = filaAtendimento.get(indice);
+            for (Mesa mesa : mesas) {
+                if (mesa.estahLiberada(requisicao.quantPessoas())) {
+                    requisicao.alocarMesa(mesa);
+                    int indiceReq = indexListaRequisicao(requisicao);
+                    removerRequisicaoFila(indiceReq);
+                    alocado = true;
+                    break;
+                }
+            }
+            indice++;
+        }
+        if (!alocado) {
+            requisicao = null;
+        }
 
-//         // for 
+        return requisicao;
+    }
 
-//         while (!alocado && indice < filaAtendimento.size()) {
-//             requisicao = filaAtendimento.get(indice);
-//             for (Mesa mesa : mesas) {
-//                     if (mesa.estahLiberada(requisicao.quantPessoas())){
-//                         requisicao.alocarMesa(mesa);
-//                         int indiceReq = indexListaRequisicao(requisicao);
-//                         removerRequisicaoFila(indiceReq);
-//                         alocado = true;
-//                     }
-//             }
-//             indice++;
-//         }
-//         if (indice == filaAtendimento.size()){
-//             requisicao = null;
-//         }
+    public void fecharConta(Mesa mesa) {
+        for (Mesa mesaFila : mesas) {
+            if (mesa.equals(mesaFila)) {
+                mesa.desocupar();
+                return;
+            }
+        }
+    }
 
-//         return requisicao;
-        
-            
-//     }
-    
+    public void criarRequisicao(String cpf, int qntPessoas) {
+        int indice = getIndiceListaClientes(cpf);
+        Cliente cliente = getCliente(indice);
+        Requisicao requisicao = new Requisicao(cliente, qntPessoas);
+        adicionarRequisicaoFila(requisicao);
+    }
 
-    
+    private int indexListaRequisicao(Requisicao requisicao) {
+        for (int index = 0; index < filaAtendimento.size(); index++) {
+            if (filaAtendimento.get(index).equals(requisicao)) {
+                return index;
+            }
+        }
+        return -1;
+    }
 
-//     /**
-//      * Método para fechar a conta da mesa indicada
-//      * 
-//      * @param mesa mesa que terá a conta fechada
-//      */
-//     public void fecharConta(Mesa mesa) {
-//         for (Mesa mesaFila : mesas) {
-//             if (mesa.equals(mesaFila)) {
-//                 mesa.desocupar();
-//                 return;
-//             }
-//         }
-//     }
+    public void adicionarRequisicaoFila(Requisicao requisicao) {
+        filaAtendimento.add(requisicao);
+    }
 
-//     public void criarRequisicao(String cpf, int qntPessoas){
-//         int indice = getIndiceListaClientes(cpf);
-//         Cliente cliente = getCliente(indice);
-//         Requisicao requisicao = new Requisicao(cliente, qntPessoas);
-//         adicionarRequisicaoFila(requisicao);
-//     }
+    public void removerRequisicaoFila(int index) {
+        filaAtendimento.remove(index);
+    }
 
-//     /**
-//      * Retorna o index da requisição que estamos procurando na fila de atendimento
-//      * 
-//      * @param requisicao requisição que queremos pesquisar o index
-//      */
-//     private int indexListaRequisicao(Requisicao requisicao) {
-//         int index = -1;
-//         for (Requisicao requisicaoFila : filaAtendimento) {
-//             if (requisicaoFila.equals(requisicao)) {
-//                 return index;
-//             }
+    public void adicionarRequisicaoAoHistorico(Requisicao requisicao) {
+        historicoAtendimento.add(requisicao);
+    }
 
-//             index++;
-//         }
+    public boolean clienteExiste(String cpf) {
+        for (Cliente cliente : listaClientes) {
+            if (cliente.getCpf().equals(cpf)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-//         return index;
-//     }
+    public void newCliente(String nome, String telContato, String cpf) {
+        Cliente cliente = new Cliente(null, nome, telContato, cpf);
+        listaClientes.add(cliente);
+    }
 
-//     /**
-//      * Método para adicionar requisição na lista de requisições
-//      * 
-//      * @param requisicao requisição que será adicionada a lista
-//      */
-//     public void adicionarRequisicaoFila(Requisicao requisicao) {
-//         filaAtendimento.add(requisicao);
-//     }
+    public Cliente localizarCliente(int idCliente) {
+        for (Cliente clienteL : listaClientes) {
+            if (clienteL.getId() == idCliente) {
+                return clienteL;
+            }
+        }
+        return null;
+    }
 
-//     /**
-//      * Método para remover requisição na lista de requisições
-//      * 
-//      * @param requisicao requisição que será removida da lista
-//      */
-//     public void removerRequisicaoFila(int index) {
-//         filaAtendimento.remove(index);
-//     }
+    public int getIndiceListaClientes(String cpf) {
+        for (int index = 0; index < listaClientes.size(); index++) {
+            if (listaClientes.get(index).getCpf().equals(cpf)) {
+                return index;
+            }
+        }
+        return -1;
+    }
 
-//     /**
-//      * Método para adicionar requisição no histórico de requisições
-//      * 
-//      * @param requisicao requisição que será adicionada ao histórico
-//      */
-//     public void adicionarRequisicaoAoHistorico(Requisicao requisicao) {
-//         historicoAtendimento.add(requisicao);
-//     }
+    public void addCliente(Cliente cliente) {
+        listaClientes.add(cliente);
+    }
 
-//     /**
-//      * Retorna se o cadastro do cliente existe ou não no restaurante
-//      * 
-//      * @param cpf string com o cpf do cliente que estamos procurando
-//      */
-//     public boolean clienteExiste(String cpf) {
-//         for (Cliente cliente : listaClientes) {
-//             if (cliente.getCPF() == cpf) {
-//                 return true;
-//             }
-//         }
+    private Cliente getCliente(int posicao) {
+        return listaClientes.get(posicao);
+    }
 
-//         return false;
-//     }
+    public void mostrarFilaAtendimento() {
+        for (Requisicao requisicao : filaAtendimento) {
+            System.out.println(requisicao);
+        }
+    }
 
-    
-//     /**
-//      * Cadastra cliente no sistema
-//      * 
-//      * @param nome nome do cliente que será cadastrado
-//      * @param telContato telefone do cliente que será cadastrado
-//      * @param cpf cpf do cliente que será cadastrado
-//      */
-//     public void newCliente(String nome, String telContato, String cpf) {
-//         Cliente cliente = new Cliente(nome, telContato, cpf);
-//         listaClientes.add(cliente);
-//         return;
-//     }
+    public Requisicao encerrarAtendimento(int idMesa) {
+        Requisicao requisicao = null;
+        for (Requisicao requisicaoFila : filaAtendimento) {
+            if (requisicaoFila.ehDaMesa(idMesa)) {
+                requisicao = requisicaoFila;
+                break;
+            }
+        }
+        if (requisicao != null) {
+            requisicao.encerrar();
+        }
+        return requisicao;
+    }
 
-//     public Cliente localizarCliente(int idCliente){
-//         Cliente cliente = null;
-//         for (Cliente clienteL : listaClientes) {
-//             if (clienteL.getId() == idCliente) {
-//                 return clienteL;
-//             }
-//         }
+    public void statusMesas() {
+        for (Mesa mesa : mesas) {
+            System.out.println(mesa);
+        }
+    }
 
-//         return cliente;
-//     }
-
-//     /**
-//      * Retorna a posição do cliente na lista de clientes do restaurante
-//      * 
-//      * @param cpf cpf do cliente que estamos procurando
-//      */
-//     public int getIndiceListaClientes(String cpf) {
-//         int index = -1;
-//         for (Cliente cliente : listaClientes) {
-//             if (cliente.getCPF() == cpf) {
-//                 return index;
-//             }
-
-//             index++;
-//         }
-
-//         return index;
-//     }
-
-//     public void addCliente(Cliente cliente){
-//         listaClientes.add(cliente);
-//     }
-
-//     /**
-//      * Retorna os dados do cliente na lista de clientes do restaurante, na posição solicitada
-//      * 
-//      * @param posicao posicao do cliente que estamos procurando
-//      */
-//     private Cliente getCliente(int posicao) {
-//         return listaClientes.get(posicao);
-//     }
-
-//     public void mostrarFilaAtendimento(){
-//         for(int i = 0; i < filaAtendimento.size() ; i++ ){
-//             System.out.println(filaAtendimento.get(i));
-//         }
-//     }
-
-//     public Requisicao encerrarAtendimento(int idMesa){
-//         Requisicao requisicao = null;
-//         for (Requisicao requisicaoFila : filaAtendimento){
-//             if (requisicaoFila.ehDaMesa(idMesa)){
-//                 requisicao = requisicaoFila;
-//             }
-//         }
-//         requisicao.encerrar();
-//         return requisicao;
-//     }
-
-//     public void statusMesas(){
-//         for (Mesa mesa : mesas){
-//             mesa.toString();
-//         }
-//     }
-
-//     public void filaDeEspera(){
-//         for (Requisicao requisicao : filaAtendimento){
-//             requisicao.toString();
-//         }
-//     }
-// }
+    public void filaDeEspera() {
+        for (Requisicao requisicao : filaAtendimento) {
+            System.out.println(requisicao);
+        }
+    }
+}
