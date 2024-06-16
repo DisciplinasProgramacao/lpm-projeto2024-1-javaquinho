@@ -66,7 +66,7 @@ public class Requisicao {
     @JoinColumn(name = "pedido", nullable = true)
     private Pedido pedido;
 
-    	@ManyToOne
+    @ManyToOne
 	@JoinColumn(name = "restaurante_id")
 	@JsonBackReference
 	private Restaurante restaurante;
