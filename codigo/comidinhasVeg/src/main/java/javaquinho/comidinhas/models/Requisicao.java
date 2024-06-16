@@ -2,12 +2,16 @@ package javaquinho.comidinhas.models;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -64,7 +68,7 @@ public class Requisicao {
 	@JsonBackReference
 	private Restaurante restaurante;
 
-    public Requisicao(Cliente cliente, int quantPessoas) {
+    public Requisicao(Cliente cliente, int quantPessoas, Restaurante r) {
         if (cliente == null) {
             throw new IllegalArgumentException("Cliente não pode ser nulo");
         }
@@ -102,7 +106,7 @@ public class Requisicao {
         return encerrada;
     }
 
-    public boolean ehDaMesa(int idMesa) {
+    public boolean ehDaMesa(Long idMesa) {
         return idMesa == mesa.getIdMesa();
     }
 

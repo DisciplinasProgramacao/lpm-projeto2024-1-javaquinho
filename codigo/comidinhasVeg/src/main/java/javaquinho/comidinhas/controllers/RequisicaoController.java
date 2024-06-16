@@ -53,16 +53,16 @@ public class RequisicaoController {
         return requisicaoRepository.save(requisicao);
     }
 
-    @PutMapping("/{id}/encerrar")
-    public ResponseEntity<Requisicao> encerrarRequisicao(@PathVariable Long id){
-    Requisicao requisicao = requisicaoRepository.findById(id).orElse(null);
-        if (requisicao != null) {
-            requisicao.encerrar();
-            return ResponseEntity.ok(requisicaoRepository.save(requisicao));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
+    // @PutMapping("/{id}/encerrar")
+    // public ResponseEntity<Requisicao> encerrarRequisicao(@PathVariable Long id){
+    // Requisicao requisicao = requisicaoRepository.findById(id).orElse(null);
+    //     if (requisicao != null) {
+    //         requisicao.encerrar();
+    //         return ResponseEntity.ok(requisicaoRepository.save(requisicao));
+    //     } else {
+    //         return ResponseEntity.notFound().build();
+    //     }
+    // }
 
     @PutMapping("/adicionarProduto")
     public ResponseEntity<Requisicao> adicionarProduto(@RequestParam Long requisicao, @RequestParam Long produto){
