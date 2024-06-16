@@ -49,12 +49,20 @@ public class Requisicao {
     @Column(name = "saida", nullable = true)
     private LocalDateTime saida;
 
+    @Column(name = "atendida", nullable = false)
+    private Boolean atendida;
+
     @Column(name = "encerrada", nullable = false)
-    private boolean encerrada;
+    private Boolean encerrada;
 
     @OneToOne
     @JoinColumn(name = "pedido", nullable = true)
     private Pedido pedido;
+
+    @ManyToOne
+	@JoinColumn(name = "restaurante_id")
+	@JsonBackReference
+	private Restaurante restaurante;
 
     public Requisicao(Cliente cliente, int quantPessoas) {
         if (cliente == null) {
@@ -68,27 +76,26 @@ public class Requisicao {
         this.entrada = null;
         this.saida = null;
         this.mesa = null;
+        this.atendida = false;
         this.encerrada = false;
+        this.restaurante = r;
         this.pedido = new Pedido(); 
         this.pedido.setCliente(cliente); 
     }
   
-    public Mesa encerrar() {
+    public void encerrar(Mesa mesa) {
         if (mesa == null) {
             throw new IllegalStateException("Não é possível encerrar uma requisição sem uma mesa alocada.");
         }
         saida = LocalDateTime.now();
         mesa.desocupar();
         encerrada = true;
-        return mesa;
     }
 
     public void alocarMesa(Mesa mesa) {
-        if (mesa.estahLiberada(quantPessoas)) {
             this.mesa = mesa;
-            entrada = LocalDateTime.now();
-            this.mesa.ocupar();
-        }
+            this.entrada = LocalDateTime.now();
+            this.atendida = true;
     }
 
     public boolean estahEncerrada() {
