@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-comidinhasApplication<comidinhas>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "javaquinho.comidinhas.comidinhasApplication",
+            "projectName": "comidinhas",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

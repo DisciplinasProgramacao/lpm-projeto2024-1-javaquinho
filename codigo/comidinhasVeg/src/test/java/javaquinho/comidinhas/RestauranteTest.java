@@ -1,26 +1,42 @@
-// package javaquinho.comidinhas;
+package javaquinho.comidinhas;
 
-// import org.junit.jupiter.api.BeforeEach;
-// import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-// import javaquinho.comidinhas.models.Cliente;
-// import javaquinho.comidinhas.models.Requisicao;
-// import javaquinho.comidinhas.models.Restaurante;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-// public class RestauranteTest {
-//     Cliente cliente;
-//     Restaurante restaurante;
-//     Requisicao requisicao;
+import javaquinho.comidinhas.models.Cliente;
+import javaquinho.comidinhas.models.Requisicao;
+import javaquinho.comidinhas.models.Restaurante;
 
-//     @BeforeEach
-//     public void setUp(){
-//         cliente = new Cliente("Roberta", "3199999999", "12345678912");
-//         restaurante = new Restaurante();
-//     }
+public class RestauranteTest {
+    Cliente cliente;
+    Restaurante res;
+    Requisicao req;
 
-//     @Test
-//     public void testCriarRequisicao(){
-//         // Restaurante.criarRequisicao("12345678912", 4);
-//     }
+    @BeforeAll
+    public void setUp(){
+        res = new Restaurante("Test");
+        cliente = new Cliente(null, "Helio", "01234567890", "01234567890", res);
+    }
 
-// }
+    @Test
+    public void testLocalizarCliente(){
+        assertEquals(cliente, res.localizarCliente("01234567890"));
+    }
+
+    @Test
+    public void testCriarRequisicao(){
+        res.criarRequisicao("01234567890",8);
+        assertEquals(new Requisicao(cliente, 8, res), req);
+    }
+
+    @Test
+    public void testAlocarRequisicao(){
+        res.criarRequisicao("01234567890",8);
+        req = res.localizarRequisicaoEmAtendimento("01234567890");
+        assertTrue(req.getAtendida());
+    }
+
+}

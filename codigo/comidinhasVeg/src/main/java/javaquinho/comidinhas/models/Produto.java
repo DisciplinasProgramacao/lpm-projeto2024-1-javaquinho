@@ -1,6 +1,5 @@
 package javaquinho.comidinhas.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -36,8 +35,4 @@ public class Produto {
     @JoinColumn(name = "menuId")
     private Menu menu;
 
-    // public String toString(){
-
-    // return "ID: " + getId() + " nome: " + getNome() + " preço: R$" + getPreco();
-    // }
 }

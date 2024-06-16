@@ -25,7 +25,7 @@ public class ClienteController {
     public ResponseEntity<Cliente> getClienteById(@PathVariable int id) {
         Optional<Cliente> cliente = clienteRepository.findById(id);
         if (cliente.isPresent()) {
-            return ResponseEntity.ok(cliente.get());
+            return ResponseEntity.ok().body(cliente.get());
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -45,7 +45,7 @@ public class ClienteController {
             existingCliente.setTelefone(clienteDetails.getTelefone());
             existingCliente.setCpf(clienteDetails.getCpf());
             final Cliente updatedCliente = clienteRepository.save(existingCliente);
-            return ResponseEntity.ok(updatedCliente);
+            return ResponseEntity.ok().body(updatedCliente);
         } else {
             return ResponseEntity.notFound().build();
         }

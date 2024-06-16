@@ -1,10 +1,14 @@
 package javaquinho.comidinhas.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -33,8 +37,14 @@ public class Mesa {
 	private int capacidade;
 
 	@Column(name = "ocupada", nullable = false)
-	private boolean ocupada;
+	private boolean ocupada = false;
 
+	@ManyToOne
+	@JoinColumn(name = "restaurante_id")
+	@JsonBackReference
+	private Restaurante restaurante;
+
+	
 	// static{
 	// 	ultimoID = 0;
 	// }
@@ -59,7 +69,7 @@ public class Mesa {
 		return (quantPessoas <= capacidade && !ocupada);
 	}
 
-	public long getIdMesa(){
+	public Long getIdMesa(){
 		return idMesa;
 	}
 	

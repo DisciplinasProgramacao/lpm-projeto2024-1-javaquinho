@@ -3,12 +3,15 @@ package javaquinho.comidinhas.models;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -53,14 +56,23 @@ public class Requisicao {
     @Column(name = "saida", nullable = true)
     private LocalDateTime saida;
 
+    @Column(name = "atendida", nullable = false)
+    private Boolean atendida;
+
     @Column(name = "encerrada", nullable = false)
-    private boolean encerrada;
+    private Boolean encerrada;
 
     @OneToOne
     @JoinColumn(name = "pedido", nullable = true)
     private Pedido pedido;
 
-    public Requisicao(Cliente cliente, int quantPessoas) {
+    	@ManyToOne
+	@JoinColumn(name = "restaurante_id")
+	@JsonBackReference
+	private Restaurante restaurante;
+
+
+    public Requisicao(Cliente cliente, int quantPessoas, Restaurante r) {
         if (cliente == null) {
             throw new IllegalArgumentException("Cliente não pode ser nulo");
         }
@@ -72,29 +84,28 @@ public class Requisicao {
         this.entrada = null;
         this.saida = null;
         this.mesa = null;
+        this.atendida = false;
         this.encerrada = false;
+        this.restaurante = r;
     }
   
-    public Mesa encerrar() {
+    public void encerrar(Mesa mesa) {
         saida = LocalDateTime.now();
         mesa.desocupar();
         encerrada = true;
-        return mesa;
     }
 
     public void alocarMesa(Mesa mesa) {
-        if (mesa.estahLiberada(quantPessoas)) {
             this.mesa = mesa;
-            entrada = LocalDateTime.now();
-            this.mesa.ocupar();
-        }
+            this.entrada = LocalDateTime.now();
+            this.atendida = true;
     }
 
     public boolean estahEncerrada() {
         return encerrada;
     }
 
-    public boolean ehDaMesa(int idMesa) {
+    public boolean ehDaMesa(Long idMesa) {
         return idMesa == mesa.getIdMesa();
     }
 
