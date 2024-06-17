@@ -127,6 +127,29 @@ public class Requisicao {
         }
     }
 
+    public void adicionarProduto(Produto produto) {
+        if (this.encerrada) {
+            throw new IllegalStateException("Não é possível adicionar produtos a uma requisição finalizada.");
+        }
+        if (this.pedido == null) {
+            this.pedido = new Pedido();
+        }
+        try {
+            this.pedido.addProduto(produto);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao adicionar produto ao pedido: " + e.getMessage(), e);
+        }
+    }
+
+    public void removerProduto(Produto produto) {
+        if (this.encerrada) {
+            throw new IllegalStateException("Não é possível remover produtos de uma requisição finalizada.");
+        }
+        if (this.pedido != null) {
+            this.pedido.removeProduto(produto);
+        }
+    }
+    
     @Override
     public String toString() {
         DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");

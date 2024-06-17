@@ -164,4 +164,19 @@ public class Restaurante {
         .findFirst()
         .orElseThrow(() -> new RuntimeException("Nenhuma requisisição encontrada"));
     }
+ 
+    // Adicionar produto à requisicao
+    public void addProdutoPedido(Long idMesa, String nomeProduto){
+        listaRequisicao.stream()
+        .filter(r -> r.ehDaMesa(idMesa))
+        .findFirst()
+        .ifPresent(r -> {
+            Produto pr = menu.getProdutos().stream()
+            .filter(p -> p.getNome().equals(nomeProduto))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+            r.adicionarProduto(pr);
+            });
+    }
+    
 }
