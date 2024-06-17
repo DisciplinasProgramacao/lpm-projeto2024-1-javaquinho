@@ -100,6 +100,7 @@ public class Requisicao {
             this.mesa = mesa;
             this.entrada = LocalDateTime.now();
             this.atendida = true;
+            this.mesa.ocupar();
     }
 
     public boolean estahEncerrada() {
