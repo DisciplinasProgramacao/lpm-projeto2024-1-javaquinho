@@ -9,12 +9,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
 @Table(name = Produto.TABLE_NAME)
 public class Produto {
 
@@ -29,7 +32,7 @@ public class Produto {
     private String nome;
 
     @Column(name = "preco", nullable = false)
-    private double preco;
+    private Double preco;
 
     @ManyToOne
     @JoinColumn(name = "menuId")

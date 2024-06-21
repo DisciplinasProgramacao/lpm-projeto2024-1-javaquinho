@@ -40,10 +40,4 @@ public class Cliente {
 
     @Column(name = "cpf", length = 11, nullable = false, unique = true)
     private String cpf;
-    
-    @ManyToOne
-	@JoinColumn(name = "restaurante_id")
-	@JsonBackReference
-	private Restaurante restaurante;
-    
 }

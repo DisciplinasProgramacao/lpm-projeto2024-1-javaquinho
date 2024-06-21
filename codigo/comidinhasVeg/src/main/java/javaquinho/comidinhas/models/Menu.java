@@ -45,6 +45,13 @@ public class Menu {
     public void adicionarProduto(Produto produto) {
         this.produtos.add(produto);
     }
+
+    public Produto localizarProduto(String nomeProduto) {
+        return produtos.stream()
+                .filter(produto -> produto.getNome().equals(nomeProduto))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Produto não encontrado: " + nomeProduto));
+    }
 }
 
 /* 

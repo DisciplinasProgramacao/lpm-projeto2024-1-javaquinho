@@ -39,11 +39,6 @@ public class Mesa {
 	@Column(name = "ocupada", nullable = false)
 	private boolean ocupada = false;
 
-	@ManyToOne
-	@JoinColumn(name = "restaurante_id")
-	@JsonBackReference
-	private Restaurante restaurante;
-
 	
 	// static{
 	// 	ultimoID = 0;

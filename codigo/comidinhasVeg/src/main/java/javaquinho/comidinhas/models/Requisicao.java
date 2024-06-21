@@ -66,13 +66,9 @@ public class Requisicao {
     @JoinColumn(name = "pedido", nullable = true)
     private Pedido pedido;
 
-    @ManyToOne
-	@JoinColumn(name = "restaurante_id")
-	@JsonBackReference
-	private Restaurante restaurante;
 
 
-    public Requisicao(Cliente cliente, int quantPessoas, Restaurante r) {
+    public Requisicao(Cliente cliente, int quantPessoas) {
         if (cliente == null) {
             throw new IllegalArgumentException("Cliente não pode ser nulo");
         }
@@ -86,7 +82,6 @@ public class Requisicao {
         this.mesa = null;
         this.atendida = false;
         this.encerrada = false;
-        this.restaurante = r;
     }
   
     public void encerrar(Mesa mesa) {
