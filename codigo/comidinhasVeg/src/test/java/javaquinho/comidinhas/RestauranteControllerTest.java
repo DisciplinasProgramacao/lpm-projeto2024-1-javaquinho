@@ -1,117 +1,151 @@
 package javaquinho.comidinhas;
 
-import javaquinho.comidinhas.controllers.RestauranteController;
-import javaquinho.comidinhas.models.Cliente;
-import javaquinho.comidinhas.models.Mesa;
-import javaquinho.comidinhas.models.Menu;
-import javaquinho.comidinhas.models.Restaurante;
-import javaquinho.comidinhas.models.Requisicao;
-import org.junit.jupiter.api.BeforeEach;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.http.ResponseEntity;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import javaquinho.comidinhas.models.Cliente;
+import javaquinho.comidinhas.models.Menu;
+import javaquinho.comidinhas.models.Mesa;
+import javaquinho.comidinhas.models.Requisicao;
 
-import java.time.LocalDateTime;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import java.util.Arrays;
+import java.util.List;
 
+@SpringBootTest
+@AutoConfigureMockMvc
+@TestMethodOrder(OrderAnnotation.class)
 public class RestauranteControllerTest {
 
-    @Mock
-    private Restaurante restaurante;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @InjectMocks
-    private RestauranteController restauranteController;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+    private static Integer idClienteEduardo;
+    private static Long idRequisicao;
 
     @Test
-    public void testCriarCliente() {
+    @Order(1)
+    public void testCriarClienteEduardo() throws Exception {
         Cliente cliente = new Cliente();
-        when(restaurante.criarCliente(cliente)).thenReturn(cliente);
+        cliente.setNome("Eduardo");
+        cliente.setTelefone("11884554323");
+        cliente.setCpf("12332315401");
 
-        ResponseEntity<Cliente> response = restauranteController.criarCliente(cliente);
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals(cliente, response.getBody());
+        String jsonCliente = objectMapper.writeValueAsString(cliente);
 
-        verify(restaurante, times(1)).criarCliente(cliente);
+        ResultActions resultActions = mockMvc.perform(post("/restaurante/cliente")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonCliente));
+
+        resultActions.andExpect(status().isOk());
+
+        String content = resultActions.andReturn().getResponse().getContentAsString();
+        Cliente clienteCriado = objectMapper.readValue(content, Cliente.class);
+        idClienteEduardo = clienteCriado.getId();
     }
 
     @Test
-    public void testCriarMesa() {
+    @Order(2)
+    public void testCriarRequisicaoParaEduardo() throws Exception {
+        // Cria a requisição usando o cliente Eduardo
+        ResultActions resultActions = mockMvc.perform(post("/restaurante/" + idClienteEduardo + "/8"));
+
+        resultActions.andExpect(status().isOk());
+
+        // Obtém o ID da requisição criada
+        String content = resultActions.andReturn().getResponse().getContentAsString();
+        Requisicao requisicao = objectMapper.readValue(content, Requisicao.class);
+        idRequisicao = requisicao.getId();
+    }
+
+    @Test
+    @Order(3)
+    public void testAlocarMesaParaRequisicao() throws Exception {
+        // Alocar a mesa para a requisição criada
+        ResultActions resultActions = mockMvc.perform(put("/restaurante/alocar/" + idRequisicao));
+
+        resultActions.andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(4)
+    public void testDesalocarMesaDeRequisicao() throws Exception {
+        // Desalocar a mesa da requisição
+        ResultActions resultActions = mockMvc.perform(put("/restaurante/desalocar/" + idRequisicao));
+
+        resultActions.andExpect(status().isOk());
+    }
+
+    @Test
+    public void testCriarClientesEmLote() throws Exception {
+        List<Cliente> clientes = Arrays.asList(
+                new Cliente(null, "Samira", "11884557453", "32391315401"),
+                new Cliente(null, "Leandra", "21880084323", "92312315401")
+        );
+
+        String jsonClientes = objectMapper.writeValueAsString(clientes);
+
+        ResultActions resultActions = mockMvc.perform(post("/restaurante/clientes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonClientes));
+
+        resultActions.andExpect(status().isOk());
+    }
+
+    @Test
+    public void testCriarMesa() throws Exception {
         Mesa mesa = new Mesa();
-        when(restaurante.criarMesa(mesa)).thenReturn(mesa);
+        mesa.setCapacidade(4);
 
-        ResponseEntity<Mesa> response = restauranteController.criarMesa(mesa);
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals(mesa, response.getBody());
+        String jsonMesa = objectMapper.writeValueAsString(mesa);
 
-        verify(restaurante, times(1)).criarMesa(mesa);
+        ResultActions resultActions = mockMvc.perform(post("/restaurante/mesa")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonMesa));
+
+        resultActions.andExpect(status().isOk());
     }
 
     @Test
-    public void testCriarMenu() {
+    public void testCriarMesasEmLote() throws Exception {
+        List<Mesa> mesas = Arrays.asList(
+                new Mesa(4),
+                new Mesa(6),
+                new Mesa(8)
+        );
+
+        String jsonMesas = objectMapper.writeValueAsString(mesas);
+
+        ResultActions resultActions = mockMvc.perform(post("/restaurante/mesas")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonMesas));
+
+        resultActions.andExpect(status().isOk());
+    }
+
+    @Test
+    public void testCriarMenu() throws Exception {
         Menu menu = new Menu();
-        when(restaurante.criarMenu(menu)).thenReturn(menu);
 
-        ResponseEntity<Menu> response = restauranteController.criarMenu(menu);
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals(menu, response.getBody());
+        String jsonMenu = objectMapper.writeValueAsString(menu);
 
-        verify(restaurante, times(1)).criarMenu(menu);
-    }
+        ResultActions resultActions = mockMvc.perform(post("/restaurante/menus")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonMenu));
 
-    @Test
-    public void testAlocarMesaParaRequisicao() {
-        Long requisicaoId = 1L;
-        when(restaurante.alocarMesaParaRequisicao(requisicaoId)).thenReturn("Mesa alocada com sucesso.");
-
-        ResponseEntity<String> response = restauranteController.alocarMesaParaRequisicao(requisicaoId);
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals("Mesa alocada com sucesso.", response.getBody());
-
-        verify(restaurante, times(1)).alocarMesaParaRequisicao(requisicaoId);
-    }
-
-    @Test
-    public void testDesalocarMesaDeRequisicao() {
-        Long requisicaoId = 1L;
-        when(restaurante.desalocarMesaDeRequisicao(requisicaoId)).thenReturn("Mesa desalocada com sucesso.");
-
-        ResponseEntity<String> response = restauranteController.desalocarMesaDeRequisicao(requisicaoId);
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals("Mesa desalocada com sucesso.", response.getBody());
-
-        verify(restaurante, times(1)).desalocarMesaDeRequisicao(requisicaoId);
-    }
-
-    @Test
-    public void testDesalocarMesaDeRequisicaoAtualizaSaida() {
-        Long requisicaoId = 1L;
-        Requisicao requisicao = new Requisicao();
-        Mesa mesa = new Mesa();
-        requisicao.setMesa(mesa);
-        
-        when(restaurante.desalocarMesaDeRequisicao(requisicaoId)).thenAnswer(invocation -> {
-            requisicao.setSaida(LocalDateTime.now());
-            requisicao.getMesa().desocupar();
-            requisicao.setMesa(null);
-            return "Mesa desalocada com sucesso.";
-        });
-
-        ResponseEntity<String> response = restauranteController.desalocarMesaDeRequisicao(requisicaoId);
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals("Mesa desalocada com sucesso.", response.getBody());
-        assertEquals(null, requisicao.getMesa());
-        assertEquals(false, mesa.isOcupada());
-        assertEquals(LocalDateTime.now().getDayOfYear(), requisicao.getSaida().getDayOfYear());
-
-        verify(restaurante, times(1)).desalocarMesaDeRequisicao(requisicaoId);
+        resultActions.andExpect(status().isOk());
     }
 }

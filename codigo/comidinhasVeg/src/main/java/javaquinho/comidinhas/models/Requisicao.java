@@ -43,10 +43,10 @@ public class Requisicao {
     @Column(name = "quantPessoas", nullable = false)
     private int quantPessoas;
 
-    @Column(name = "entrada", nullable = true)
+    @Column(name = "entrada", columnDefinition = "DATETIME")
     private LocalDateTime entrada;
 
-    @Column(name = "saida", nullable = true)
+    @Column(name = "saida", columnDefinition = "DATETIME")
     private LocalDateTime saida;
 
     @Column(name = "encerrada", nullable = false)

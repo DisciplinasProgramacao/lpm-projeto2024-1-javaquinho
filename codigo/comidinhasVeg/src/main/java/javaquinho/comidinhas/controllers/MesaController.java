@@ -4,14 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javaquinho.comidinhas.models.Mesa;
 import javaquinho.comidinhas.repositories.MesaRepository;
@@ -59,6 +52,16 @@ public class MesaController {
     @PostMapping
     public Mesa createMesa(@RequestBody Mesa mesa){
         return mesaRepository.save(mesa);
+    }
+
+    @PostMapping("/lista")
+    public ResponseEntity<?> createMesas(@RequestBody List<Mesa> mesas) {
+        try {
+            List<Mesa> novasMesas = mesaRepository.saveAll(mesas);
+            return ResponseEntity.ok("Mesas criadas com sucesso.");
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body("Erro ao criar mesas: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")

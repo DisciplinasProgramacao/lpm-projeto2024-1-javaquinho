@@ -1,0 +1,153 @@
+{
+	"info": {
+		"_postman_id": "b1dd1690-4405-4f17-8381-3d2684f30198",
+		"name": "Restauras",
+		"description": "Coleção para testar a API do Restaurante",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "34537890",
+		"_collection_link": "https://aa5555-4919.postman.co/workspace/aa-Workspace~9d3ba132-78d7-4b10-b2ce-d12398d48bc1/collection/34537890-b1dd1690-4405-4f17-8381-3d2684f30198?action=share&source=collection_link&creator=34537890"
+	},
+	"item": [
+		{
+			"name": "Criar Cliente",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Eduardo\",\n  \"telefone\": \"11884554323\",\n  \"cpf\": \"12332315401\"\n}"
+				},
+				"url": "http://localhost:8080/restaurante/cliente"
+			},
+			"response": []
+		},
+		{
+			"name": "Criar Clientes em Lote",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n  {\r\n  \"nome\": \"Samira\",\r\n  \"telefone\": \"11884557453\",\r\n  \"cpf\": \"32391315401\"\r\n  },\r\n  {\r\n  \"nome\": \"Leandra\",\r\n  \"telefone\": \"21880084323\",\r\n  \"cpf\": \"92312315401\"\r\n  }\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8080/restaurante/clientes"
+			},
+			"response": []
+		},
+		{
+			"name": "Criar Mesa",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "\n  {\n    \"capacidade\": 4\n  }"
+				},
+				"url": "http://localhost:8080/restaurante/mesa"
+			},
+			"response": []
+		},
+		{
+			"name": "Criar Mesas em Lote",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n  {\n    \"capacidade\": 4\n  },\n    {\n    \"capacidade\": 4\n  },\n    {\n    \"capacidade\": 4\n  },\n    {\n    \"capacidade\": 4\n  },\n  {\n    \"capacidade\": 6\n  },\n    {\n    \"capacidade\": 6\n  },\n    {\n    \"capacidade\": 6\n  },\n    {\n    \"capacidade\": 6\n  },\n  {\n    \"capacidade\": 8\n  },\n  {\n    \"capacidade\": 8\n  }\n]\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8080/restaurante/mesas"
+			},
+			"response": []
+		},
+		{
+			"name": "Criar Menu",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"produtos\": []\n}\n"
+				},
+				"url": "http://localhost:8080/restaurante/menus"
+			},
+			"response": []
+		},
+		{
+			"name": "Criar Requisicao",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8080/restaurante/1/8"
+			},
+			"response": []
+		},
+		{
+			"name": "Alocar Mesa",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": "http://localhost:8080/restaurante/alocar/1"
+			},
+			"response": []
+		},
+		{
+			"name": "Desalocar Mesa",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": "http://localhost:8080/restaurante/desalocar/1"
+			},
+			"response": []
+		}
+	]
+}
