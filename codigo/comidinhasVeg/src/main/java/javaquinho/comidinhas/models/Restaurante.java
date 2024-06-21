@@ -16,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -74,26 +75,39 @@ public class Restaurante {
 
     // Encontra a mesa pelo Id
     private Mesa getMesa(Long idMesa) {
-        return mesas.stream()
-                .filter(mesa -> mesa.getIdMesa().equals(idMesa))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Mesa não encontrada"));
+        int pos =mesas.indexOf(idMesa);
+        return mesas.get(pos);
+
+        // return mesas.stream()
+        //         .filter(mesa -> mesa.getIdMesa().equals(idMesa))
+        //         .findFirst()
+        //         .orElseThrow(() -> new RuntimeException("Mesa não encontrada"));
     }
 
     // Função que processa a fila de atendimento, alocando as requisições nas mesas
     // disponíveis
     public void processarFilaRequisicao() {
+        Requisicao req =
         listaRequisicao.stream()
                 .filter(r -> !r.getAtendida())
-                .forEach(r -> {
-                    mesas.stream()
-                            .filter(m -> m.estahLiberada(r.getQuantPessoas()))
-                            .findFirst()
-                            .ifPresent(m -> {
-                                r.alocarMesa(m);
-                                m.ocupar();
-                            });
-                });
+                .findFirst().orElse(null);
+        if(req!=null){
+            Mesa mesa = mesas.stream().filter(m -> m.estahLiberada(req.getQuantPessoas()))
+                        .findFirst().orElse(null);
+                        
+            if(mesa!=null)
+                req.alocarMesa(mesa);
+
+        }
+                // .forEach(r -> {
+                //     mesas.stream()
+                //             .filter(m -> m.estahLiberada(r.getQuantPessoas()))
+                //             .findFirst()
+                //             .ifPresent(m -> {
+                //                 r.alocarMesa(m);
+                //                 m.ocupar();
+                //             });
+                // });
     }
 
     // Cria uma requisição a partir de um CPF e quantidade de pessoas
@@ -107,16 +121,15 @@ public class Restaurante {
         processarFilaRequisicao();
     }
 
-
     // Verifica se o cliente já existe
     public Boolean clienteExiste(String cpf) {
         return listaClientes.stream().anyMatch(cliente -> cliente.getCpf().equals(cpf));
     }
 
     // Cadastrar novo cliente ao restaurante
-    public void newCliente(String nome, String telContato, String cpf) {
+    public void newCliente(String nome, String telContato, String cpf) {  //receber o cliente pronto do main
         if (!clienteExiste(cpf)) {
-            Cliente cliente = new Cliente(null, nome, telContato, cpf, this);
+            Cliente cliente = new Cliente(null, nome, telContato, cpf, this);// tirar o restaurante
             listaClientes.add(cliente);
         } else
             throw new RuntimeException("Cliente já cadastrado");
@@ -132,7 +145,7 @@ public class Restaurante {
 
     // Encerra uma requisição através do número da mesa que ela está alocada
     public void encerrarAtendimento(Long idMesa) {
-        Requisicao requisicao = listaRequisicao.stream()
+        Requisicao requisicao = listaRequisicao.stream()    //esta correto existir, porem provavelmente eh melhor outra estrutura que nao seja uma lista para buscar.
                 .filter(r -> r.ehDaMesa(idMesa))
                 .findFirst()
                 .orElse(null);
@@ -143,9 +156,11 @@ public class Restaurante {
     }
 
     // Lista de requisições já atendidas
-    public void getHistoricoAtendimento() {
+    public void historicoAtendimento() {
         listaRequisicao.stream()
-                .filter(r -> r.getEncerrada());
+                .filter(r -> r.getEncerrada())
+                .toList();
+                //criar uma string a partir da lista e retornar
     }
 
     // Lista de requisições não atendidas
@@ -164,19 +179,23 @@ public class Restaurante {
         .findFirst()
         .orElseThrow(() -> new RuntimeException("Nenhuma requisisição encontrada"));
     }
- 
+
     // Adicionar produto à requisicao
     public void addProdutoPedido(Long idMesa, String nomeProduto){
+       //metodo de localizar requisicao
+       //produto eh localizado no cardapio
+       r.adicionarProduto(prod);
+       
         listaRequisicao.stream()
         .filter(r -> r.ehDaMesa(idMesa))
         .findFirst()
         .ifPresent(r -> {
-            Produto pr = menu.getProdutos().stream()
+            Produto prod = menu.getProdutos().stream()
             .filter(p -> p.getNome().equals(nomeProduto))
             .findFirst()
             .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
-            r.adicionarProduto(pr);
+            r.adicionarProduto(prod);
             });
     }
-    
+
 }
