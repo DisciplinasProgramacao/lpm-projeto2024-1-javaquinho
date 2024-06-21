@@ -20,62 +20,43 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode
 public class Mesa {
-	private static final String TABLE_NAME = "mesa";
+    private static final String TABLE_NAME = "mesa";
 
-	// private static int ultimoID;
-
-	@Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", unique = true, nullable = false)
     private int idMesa;
 
-	@Column(name = "capacidade", nullable = false)
-	private int capacidade;
+    @Column(name = "capacidade", nullable = false)
+    private int capacidade;
 
-	@Column(name = "ocupada", nullable = false)
-	private boolean ocupada;
+    @Column(name = "ocupada", nullable = false)
+    private boolean ocupada;
 
-	// static{
-	// 	ultimoID = 0;
-	// }
+    public Mesa(int capacidade) {
+        this.capacidade = capacidade;
+        this.ocupada = false;
+    }
 
-	// public Mesa(int capacidade) {
-	// 	this.capacidade = 2;
-	// 	if(capacidade>2)
-	// 		this.capacidade = capacidade;
-	// 	id = ++ultimoID;
-	// 	ocupada = false;
-	// }
+    public void ocupar() {
+        this.ocupada = true;
+    }
 
-	public Mesa(int capacidade) {
-		this.capacidade = capacidade;
-		ocupada = false;
-	}
+    public void desocupar() {
+        this.ocupada = false;
+    }
 
-	public void ocupar() {
-		ocupada = true;
-	}
+    public boolean estahLiberada(int quantPessoas) {
+        return (quantPessoas <= capacidade && !ocupada);
+    }
 
-	public void desocupar() {
-		ocupada = false;
-	}
-
-	public boolean estahLiberada(int quantPessoas) {
-		return (quantPessoas <= capacidade && !ocupada);
-	}
-
-	public int getIdMesa(){
-		return idMesa;
-	}
-	
-	public String toString(){
-		String descricao = String.format("Mesa %02d (%d pessoas), ",idMesa, capacidade);
-		if(ocupada)
-			descricao += "ocupada.";
-		else 
-			descricao += "liberada.";
-		
-		return descricao;
-	}
-
+    public String toString() {
+        String descricao = String.format("Mesa %02d (%d pessoas), ", idMesa, capacidade);
+        if (ocupada) {
+            descricao += "ocupada.";
+        } else {
+            descricao += "liberada.";
+        }
+        return descricao;
+    }
 }
