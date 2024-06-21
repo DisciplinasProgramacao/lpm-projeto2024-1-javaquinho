@@ -1,5 +1,6 @@
 package javaquinho.comidinhas.models;
 
+import java.util.HashSet;
 import java.util.Set;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,13 +19,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Getter
-@Setter
-@EqualsAndHashCode
-@AllArgsConstructor
-@NoArgsConstructor
 @Table(name = Menu.TABLE_NAME)
-public class Menu {
+public abstract class Menu {
 
     public static final String TABLE_NAME = "menu";
 
@@ -39,9 +35,27 @@ public class Menu {
         joinColumns = @JoinColumn(name = "menu_id"),
         inverseJoinColumns = @JoinColumn(name = "produto_id")
     )
-    private Set<Produto> produtos;
+    protected Set<Produto> produtos;
 
-    public void adicionarProduto(Produto produto) throws LimiteProdutosException {
-        this.produtos.add(produto);
+    public Long getId(){
+        return this.id;
     }
+
+    public Set<Produto> getProdutos(){
+        return this.produtos;
+    }
+
+    public abstract void setProdutos(Set<Produto> produtos) throws LimiteProdutosException;
+
+    public boolean produtoExiste(Produto produto){
+        for (Produto p : this.getProdutos()){
+            if (p.equals(produto)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public abstract void adicionarProduto(Produto produto) throws LimiteProdutosException;
 }

@@ -69,7 +69,7 @@ public class Requisicao {
         this.saida = null;
         this.mesa = null;
         this.encerrada = false;
-        this.pedido = new Pedido(); 
+        // this.pedido = new Pedido(); 
         this.pedido.setCliente(cliente); 
     }
 
@@ -127,7 +127,7 @@ public class Requisicao {
             throw new IllegalStateException("Não é possível adicionar produtos a uma requisição finalizada.");
         }
         if (this.pedido == null) {
-            this.pedido = new Pedido();
+            // this.pedido = new Pedido();
         }
         try {
             this.pedido.addProduto(produto);
@@ -159,9 +159,9 @@ public class Requisicao {
         }
         stringReq.append("\nProdutos:\n");
         if (pedido != null) {
-            for (Produto produto : pedido.getProdutos()) {
-                stringReq.append(produto.getNome()).append(" - R$").append(produto.getPreco()).append("\n");
-            }
+            // for (Produto produto : pedido.getProdutos()) {
+            //     stringReq.append(produto.getNome()).append(" - R$").append(produto.getPreco()).append("\n");
+            // }
             stringReq.append("Total: ").append(exibirConta()).append("\n");
             stringReq.append("Valor por pessoa: ").append(exibirValorPorPessoa()).append("\n");
         }

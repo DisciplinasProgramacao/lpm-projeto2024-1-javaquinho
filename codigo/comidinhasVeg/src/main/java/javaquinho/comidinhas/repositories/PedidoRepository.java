@@ -1,6 +1,8 @@
 package javaquinho.comidinhas.repositories;
 
+import javaquinho.comidinhas.models.Menu;
 import javaquinho.comidinhas.models.Pedido;
+import javaquinho.comidinhas.models.PedidoAberto;
 
 import java.util.List;
 

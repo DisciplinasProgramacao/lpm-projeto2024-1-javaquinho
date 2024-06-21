@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.net.URI;
 
 import javaquinho.comidinhas.excecoes.LimiteProdutosException;
+import javaquinho.comidinhas.excecoes.NaoExisteMenuException;
+import javaquinho.comidinhas.excecoes.ProdutoNaoExisteNoMenuException;
 import javaquinho.comidinhas.models.PedidoFechado;
 import javaquinho.comidinhas.models.Produto;
 import javaquinho.comidinhas.repositories.PedidoFechadoRepository;
@@ -86,6 +88,10 @@ public class PedidoFechadoController {
             return ResponseEntity.ok().body(pedido);
 
         } catch (LimiteProdutosException e) {
+            return ResponseEntity.status(500).build();
+        } catch (NaoExisteMenuException e){
+            return ResponseEntity.status(500).build();
+        } catch(ProdutoNaoExisteNoMenuException e ){
             return ResponseEntity.status(500).build();
         }
 

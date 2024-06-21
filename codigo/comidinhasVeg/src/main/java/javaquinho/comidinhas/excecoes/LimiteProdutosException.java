@@ -5,3 +5,4 @@ public class LimiteProdutosException extends Exception{
         super("O limite de " + limite + " produtos por pedido não pode ser ultrapassado!");
     }
 }
+
