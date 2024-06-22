@@ -2,6 +2,6 @@ package javaquinho.comidinhas.excecoes;
 
 public class NaoExisteMenuException extends Exception{
     public NaoExisteMenuException(){
-        super("");
+        super("Não existe nenhum menu no pedido!");
     }
 }

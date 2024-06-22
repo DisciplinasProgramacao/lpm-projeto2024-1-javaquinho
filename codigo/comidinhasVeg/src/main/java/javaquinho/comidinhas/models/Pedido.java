@@ -1,5 +1,6 @@
 package javaquinho.comidinhas.models;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,6 +13,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import javaquinho.comidinhas.excecoes.LimiteProdutosException;
+import javaquinho.comidinhas.excecoes.MenuInvalidoException;
 import javaquinho.comidinhas.excecoes.NaoExisteMenuException;
 import javaquinho.comidinhas.excecoes.ProdutoNaoExisteNoMenuException;
 
@@ -23,17 +25,9 @@ import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 @Entity
 @Table(name = "pedido")
 public abstract class Pedido<T extends Menu> {
-    @OneToOne
-    @JoinColumn(name = "requisicao", nullable = true)
-    private Requisicao requisicao;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @OneToOne
-    @JoinColumn(name = "cliente_id", nullable = false)
-    private Cliente cliente;
 
     @ManyToMany
     @JoinTable(
@@ -45,7 +39,26 @@ public abstract class Pedido<T extends Menu> {
 
     @OneToOne
     @JoinColumn(name = "menu_id", nullable = true)
-    private Menu menu;
+    protected Menu menu;
+
+    @Column(name = "qntPessoas", nullable = false)
+    protected int qntPessoas;
+
+    public Pedido(){}
+
+    public Pedido(int qntPessoas){
+        this.qntPessoas = qntPessoas;
+    }
+
+    public Menu getMenu(){
+        return menu;
+    }
+
+    public abstract void setMenu(T menu) throws MenuInvalidoException;
+
+    public int getQntPessoas(){
+        return this.qntPessoas;
+    }
 
     public Long getId() {
         return id;
@@ -53,22 +66,6 @@ public abstract class Pedido<T extends Menu> {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Requisicao getRequisicao(){
-        return requisicao;
-    }
-
-    public void setRequisicao(Requisicao req){
-        this.requisicao = req;
-    }
-
-    public Cliente getCliente() {
-        return cliente;
-    }
-
-    public void setCliente(Cliente cliente) {
-        this.cliente = cliente;
     }
 
     public List<Produto> getProdutos() {
@@ -80,14 +77,6 @@ public abstract class Pedido<T extends Menu> {
     public void removeProduto(Produto produto) {
         
         this.produtos.remove(produto);
-    }
-
-    public Menu getMenu(){
-        return menu;
-    }
-
-    public void setMenu(T menu){
-        this.menu = menu;
     }
 
     public abstract double getSomarTotal();

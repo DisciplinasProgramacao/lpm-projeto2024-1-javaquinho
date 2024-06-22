@@ -13,7 +13,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
-
-    @Query("SELECT p FROM Pedido p WHERE p.cliente.id = :clienteId")
-    List<Pedido> findByClienteId(@Param("clienteId") Long clienteId);
 }

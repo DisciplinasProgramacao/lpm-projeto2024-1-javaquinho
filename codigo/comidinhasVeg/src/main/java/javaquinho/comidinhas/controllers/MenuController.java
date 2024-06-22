@@ -74,7 +74,7 @@ public class MenuController {
 
                 return ResponseEntity.ok("Produto adicionado com sucesso!");
             } catch (LimiteProdutosException e) {
-                return ResponseEntity.status(400).body(e.getMessage());
+                return ResponseEntity.status(500).body(e.getMessage());
             }
 
         } else {

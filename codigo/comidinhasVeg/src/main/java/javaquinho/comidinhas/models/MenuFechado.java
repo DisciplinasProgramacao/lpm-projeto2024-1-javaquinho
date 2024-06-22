@@ -11,6 +11,8 @@ public class MenuFechado extends Menu{
 
     public MenuFechado(){}
 
+    
+
     public MenuFechado(Set<Produto> produtos) throws LimiteProdutosException{
         this.setProdutos(produtos);
     }

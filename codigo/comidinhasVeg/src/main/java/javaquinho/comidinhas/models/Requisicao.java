@@ -70,7 +70,6 @@ public class Requisicao {
         this.mesa = null;
         this.encerrada = false;
         // this.pedido = new Pedido(); 
-        this.pedido.setCliente(cliente); 
     }
 
     public Requisicao(Cliente cliente, Integer quantPessoas) {
