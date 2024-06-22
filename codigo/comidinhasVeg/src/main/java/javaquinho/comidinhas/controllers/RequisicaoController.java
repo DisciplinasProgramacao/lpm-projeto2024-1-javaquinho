@@ -21,6 +21,8 @@ import javaquinho.comidinhas.excecoes.ProdutoNaoExisteNoMenuException;
 import javaquinho.comidinhas.models.Cliente;
 import javaquinho.comidinhas.models.Mesa;
 import javaquinho.comidinhas.models.Pedido;
+import javaquinho.comidinhas.models.PedidoAberto;
+import javaquinho.comidinhas.models.PedidoFechado;
 import javaquinho.comidinhas.models.Produto;
 import javaquinho.comidinhas.models.Requisicao;
 import javaquinho.comidinhas.repositories.RequisicaoRepository;
@@ -111,16 +113,33 @@ public class RequisicaoController {
     }
 
     /*patch que linka um pedido a requisição */
-    @PutMapping("/{id}/{idPedido}")
-    public ResponseEntity<Requisicao> linkarPedido(@PathVariable Long id, @RequestBody Long idPedido){
+    @PutMapping("/adicionar-pedido-aberto/{id}/{tipoPedido}")
+    public ResponseEntity<String> adicionarPedidoAberto(@PathVariable Long id, @PathVariable String tipoPedido){
         Requisicao requisicao = requisicaoRepository.findById(id).orElse(null);
-        Pedido pedido = pedidoRepository.findById(idPedido).orElse(null);
-        if (requisicao != null) {
-            requisicao.setPedido(pedido);
-            return ResponseEntity.ok(requisicaoRepository.save(requisicao));
-        } else {
-            return ResponseEntity.notFound().build();
+        try {
+            if (requisicao != null) {
+                System.out.println(tipoPedido);
+                Pedido pedido;
+                if (tipoPedido.toLowerCase().equals("aberto")){
+                    pedido = new PedidoAberto(requisicao.getQuantPessoas());
+                }
+                else if (tipoPedido.toLowerCase().equals("fechado")){
+                    pedido = new PedidoFechado(requisicao.getQuantPessoas());
+                }
+                else {
+                    throw new Exception("parâmetro de tipo de pedido incorreto!");
+                }
+                requisicao.setPedido(pedido);
+                pedidoRepository.save(pedido);
+                requisicaoRepository.save(requisicao);
+                return ResponseEntity.ok().body("Pedido criado com sucesso!");
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch(Exception e ){
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
+        
     }
 
 
