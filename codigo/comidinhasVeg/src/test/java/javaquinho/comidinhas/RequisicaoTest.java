@@ -9,8 +9,6 @@ import javaquinho.comidinhas.models.Mesa;
 import javaquinho.comidinhas.models.Produto;
 import javaquinho.comidinhas.models.Requisicao;
 
-import java.time.LocalDateTime;
-
 public class RequisicaoTest {
 
     private Cliente cliente;

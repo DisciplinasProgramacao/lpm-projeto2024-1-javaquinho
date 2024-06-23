@@ -16,6 +16,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Classe que representa um Cliente.
+ */
 @Entity
 @Table(name = Cliente.TABLE_NAME)
 @AllArgsConstructor
@@ -24,20 +27,35 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode
 public class Cliente {
-    
+
+    /**
+     * Nome da tabela no banco de dados.
+     */
     public static final String TABLE_NAME = "cliente";
-    
+
+    /**
+     * Identificador único do cliente.
+     */
     @Id
     @Column(name = "id", unique = true, nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
+    /**
+     * Nome do cliente.
+     */
     @Column(name = "nome", length = 100, nullable = false)
     private String nome;
 
+    /**
+     * Telefone do cliente.
+     */
     @Column(name = "telefone", length = 11, nullable = false, unique = true)
     private String telefone;
 
+    /**
+     * CPF do cliente.
+     */
     @Column(name = "cpf", length = 11, nullable = false, unique = true)
     private String cpf;
 
@@ -46,3 +64,4 @@ public class Cliente {
 	@JsonBackReference
 	private Restaurante restaurante;
 }
+

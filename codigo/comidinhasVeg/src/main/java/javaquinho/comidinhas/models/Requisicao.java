@@ -57,12 +57,10 @@ public class Requisicao {
     @Column(name = "quantPessoas", nullable = false)
     private int quantPessoas;
 
-    // Horário de entrada na mesa
-    @Column(name = "entrada", nullable = true)
+    @Column(name = "entrada", columnDefinition = "DATETIME")
     private LocalDateTime entrada;
 
-    // Horário de saída da mesa
-    @Column(name = "saida", nullable = true)
+    @Column(name = "saida", columnDefinition = "DATETIME")
     private LocalDateTime saida;
 
     // Indica se a requisição foi atendida
@@ -106,9 +104,12 @@ public class Requisicao {
         this.mesa = null;
         this.atendida = false;
         this.encerrada = false;
-        this.restaurante = r;
-        this.pedido = new Pedido(); 
-        this.pedido.setCliente(cliente); 
+        // this.pedido = new Pedido(); 
+    }
+
+    public Requisicao(Cliente cliente, Integer quantPessoas) {
+        this.cliente = cliente;
+        this.quantPessoas = quantPessoas;
     }
 
     /**
@@ -205,7 +206,7 @@ public class Requisicao {
             throw new IllegalStateException("Não é possível adicionar produtos a uma requisição finalizada.");
         }
         if (this.pedido == null) {
-            this.pedido = new Pedido();
+            // this.pedido = new Pedido();
         }
         try {
             this.pedido.addProduto(produto);
@@ -249,9 +250,9 @@ public class Requisicao {
         }
         stringReq.append("\nProdutos:\n");
         if (pedido != null) {
-            for (Produto produto : pedido.getProdutos()) {
-                stringReq.append(produto.getNome()).append(" - R$").append(produto.getPreco()).append("\n");
-            }
+            // for (Produto produto : pedido.getProdutos()) {
+            //     stringReq.append(produto.getNome()).append(" - R$").append(produto.getPreco()).append("\n");
+            // }
             stringReq.append("Total: ").append(exibirConta()).append("\n");
             stringReq.append("Valor por pessoa: ").append(exibirValorPorPessoa()).append("\n");
         }

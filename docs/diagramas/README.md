@@ -14,3 +14,6 @@ Ao final do atendimento, o Restaurante fecha a conta encerrando assim o atendime
 
 04 -![DiagramaClasses V03 - Trabalho LPM](https://github.com/DisciplinasProgramacao/lpm-projeto2024-1-javaquinho/assets/136115980/99bfdbca-720c-4697-95ea-fd86dd1384ab)
 
+05 -![DiagramaClasses V03 - Trabalho LPM (1)](https://github.com/DisciplinasProgramacao/lpm-projeto2024-1-javaquinho/assets/136115980/9e1787d5-00ec-481e-864f-49a25f4b39ea)
+
+
