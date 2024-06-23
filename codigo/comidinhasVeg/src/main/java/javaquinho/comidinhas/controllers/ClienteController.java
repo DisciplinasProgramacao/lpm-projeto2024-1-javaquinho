@@ -16,11 +16,22 @@ public class ClienteController {
     @Autowired
     private ClienteRepository clienteRepository;
 
+    /**
+     * Retorna todos os clientes.
+     *
+     * @return lista de clientes
+     */
     @GetMapping
     public List<Cliente> getAllClientes() {
         return clienteRepository.findAll();
     }
 
+    /**
+     * Retorna um cliente específico com base no ID.
+     *
+     * @param id ID do cliente
+     * @return cliente ou status de não encontrado
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Cliente> getClienteById(@PathVariable int id) {
         Optional<Cliente> cliente = clienteRepository.findById(id);
@@ -31,11 +42,24 @@ public class ClienteController {
         }
     }
 
+    /**
+     * Cria um novo cliente.
+     *
+     * @param cliente objeto cliente a ser criado
+     * @return cliente criado
+     */
     @PostMapping
     public Cliente createCliente(@RequestBody Cliente cliente) {
         return clienteRepository.save(cliente);
     }
 
+    /**
+     * Atualiza um cliente existente.
+     *
+     * @param id ID do cliente a ser atualizado
+     * @param clienteDetails detalhes do cliente a serem atualizados
+     * @return cliente atualizado ou status de não encontrado
+     */
     @PutMapping("/{id}")
     public ResponseEntity<Cliente> updateCliente(@PathVariable int id, @RequestBody Cliente clienteDetails) {
         Optional<Cliente> cliente = clienteRepository.findById(id);
@@ -51,6 +75,12 @@ public class ClienteController {
         }
     }
 
+    /**
+     * Deleta um cliente existente.
+     *
+     * @param id ID do cliente a ser deletado
+     * @return status de sucesso ou não encontrado
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCliente(@PathVariable int id) {
         Optional<Cliente> cliente = clienteRepository.findById(id);

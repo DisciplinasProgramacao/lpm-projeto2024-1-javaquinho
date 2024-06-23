@@ -2,7 +2,6 @@ package javaquinho.comidinhas.controllers;
 
 import java.util.List;
 import java.util.Optional;
-import java.net.URI;
 
 import javaquinho.comidinhas.excecoes.LimiteProdutosException;
 import javaquinho.comidinhas.excecoes.MenuInvalidoException;
@@ -21,9 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/pedidos")
@@ -39,7 +35,12 @@ public class PedidoController {
     @Autowired
     private MenuRepository menuRepository;
 
-    // Criar novo pedido
+    /**
+     * Cria um novo pedido aberto.
+     *
+     * @param qntPessoas quantidade de pessoas no pedido
+     * @return mensagem de sucesso ou erro
+     */
     @PostMapping("/aberto")
     public ResponseEntity<String> criarPedidoAberto(@RequestParam int qntPessoas) {
         PedidoAberto obj = new PedidoAberto(qntPessoas);
@@ -47,6 +48,12 @@ public class PedidoController {
         return ResponseEntity.ok().body("Pedido aberto criado com sucesso!");
     }
 
+    /**
+     * Cria um novo pedido fechado.
+     *
+     * @param qntPessoas quantidade de pessoas no pedido
+     * @return mensagem de sucesso ou erro
+     */
     @PostMapping("/fechado")
     public ResponseEntity<String> criarPedidoFechado(@RequestParam int qntPessoas) {
         PedidoFechado obj = new PedidoFechado(qntPessoas);
@@ -54,20 +61,36 @@ public class PedidoController {
         return ResponseEntity.ok().body("Pedido fechado criado com sucesso!");
     }
 
-    // Puxar todos os pedidos
+    /**
+     * Retorna todos os pedidos.
+     *
+     * @return lista de pedidos
+     */
     @GetMapping("")
     public ResponseEntity<List<Pedido>> getAllPedidos() {
         List<Pedido> pedidos = pedidoRepository.findAll();
         return ResponseEntity.ok().body(pedidos);
     }
 
-    // Puxar determinado pedido
+    /**
+     * Retorna um pedido específico com base no ID.
+     *
+     * @param pedidoId ID do pedido
+     * @return pedido ou status de não encontrado
+     */
     @GetMapping("/{pedidoId}")
     public ResponseEntity<Pedido> getPedidoById(@PathVariable Long pedidoId) {
         Optional<Pedido> optionalPedido = pedidoRepository.findById(pedidoId);
         return optionalPedido.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    /**
+     * Adiciona um menu a um pedido.
+     *
+     * @param id     ID do pedido
+     * @param idMenu ID do menu
+     * @return mensagem de sucesso ou erro
+     */
     @PostMapping("/adicionar-menu")
     public ResponseEntity<String> adicionarMenu(@RequestParam Long id, @RequestParam Long idMenu) {
         Menu menu = menuRepository.findById(idMenu).orElse(null);
@@ -90,7 +113,12 @@ public class PedidoController {
         }
     }
 
-    // Retornar o valor total do pedido
+    /**
+     * Retorna o valor total do pedido.
+     *
+     * @param pedidoId ID do pedido
+     * @return valor total do pedido
+     */
     @GetMapping("/total/{pedidoId}")
     public ResponseEntity<Double> getTotalPedido(@PathVariable Long pedidoId) {
         Optional<Pedido> optionalPedido = pedidoRepository.findById(pedidoId);
@@ -103,7 +131,13 @@ public class PedidoController {
         return ResponseEntity.ok().body(total);
     }
 
-    // Atualizar pedido
+    /**
+     * Adiciona um produto a um pedido.
+     *
+     * @param id        ID do pedido
+     * @param idProduto ID do produto
+     * @return mensagem de sucesso ou erro
+     */
     @PutMapping("/adicionar-produto")
     public ResponseEntity<String> adicionarProdutoAoPedido(
             @RequestParam Long id,

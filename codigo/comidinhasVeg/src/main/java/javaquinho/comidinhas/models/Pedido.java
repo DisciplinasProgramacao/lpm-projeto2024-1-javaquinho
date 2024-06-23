@@ -9,8 +9,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import javaquinho.comidinhas.excecoes.LimiteProdutosException;
 import javaquinho.comidinhas.excecoes.MenuInvalidoException;
@@ -20,73 +18,154 @@ import javaquinho.comidinhas.excecoes.ProdutoNaoExisteNoMenuException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-
+/**
+ * Classe abstrata representando um Pedido.
+ *
+ * @param <T> tipo de Menu associado ao Pedido
+ */
 @Entity
 @Table(name = "pedido")
 public abstract class Pedido<T extends Menu> {
+
+    /**
+     * ID do pedido.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Lista de produtos associados ao pedido.
+     */
     @ManyToMany
-    @JoinTable(
-        name = "pedido_produto",
-        joinColumns = @JoinColumn(name = "pedido_id"),
-        inverseJoinColumns = @JoinColumn(name = "produto_id")
-    )
+    @JoinTable(name = "pedido_produto", joinColumns = @JoinColumn(name = "pedido_id"), inverseJoinColumns = @JoinColumn(name = "produto_id"))
     protected List<Produto> produtos = new ArrayList<>();
 
+    /**
+     * Menu associado ao pedido.
+     */
     @ManyToOne
     @JoinColumn(name = "menu_id", nullable = true)
     protected Menu menu;
 
+    /**
+     * Quantidade de pessoas associada ao pedido.
+     */
     @Column(name = "qntPessoas", nullable = false)
     protected int qntPessoas;
 
-    public Pedido(){}
-    
-    public Pedido(int qntPessoas){
+    /**
+     * Construtor padrão.
+     */
+    public Pedido() {
+    }
+
+    /**
+     * Construtor que inicializa a quantidade de pessoas.
+     *
+     * @param qntPessoas quantidade de pessoas
+     */
+    public Pedido(int qntPessoas) {
         setQntPessoas(qntPessoas);
     }
 
-    public Pedido(int qntPessoas, T menu) throws MenuInvalidoException{
+    /**
+     * Construtor que inicializa a quantidade de pessoas e o menu.
+     *
+     * @param qntPessoas quantidade de pessoas
+     * @param menu       menu associado ao pedido
+     * @throws MenuInvalidoException se o menu for inválido
+     */
+    public Pedido(int qntPessoas, T menu) throws MenuInvalidoException {
         setQntPessoas(qntPessoas);
         setMenu(menu);
     }
 
-    public Menu getMenu(){
+    /**
+     * Retorna o menu associado ao pedido.
+     *
+     * @return menu
+     */
+    public Menu getMenu() {
         return menu;
     }
 
+    /**
+     * Define o menu associado ao pedido.
+     *
+     * @param menu menu a ser associado
+     * @throws MenuInvalidoException se o menu for inválido
+     */
     public abstract void setMenu(T menu) throws MenuInvalidoException;
 
-    public void setQntPessoas(int qnt){
+    /**
+     * Define a quantidade de pessoas.
+     *
+     * @param qnt quantidade de pessoas
+     */
+    public void setQntPessoas(int qnt) {
         this.qntPessoas = qnt;
     }
 
-    public int getQntPessoas(){
+    /**
+     * Retorna a quantidade de pessoas.
+     *
+     * @return quantidade de pessoas
+     */
+    public int getQntPessoas() {
         return this.qntPessoas;
     }
 
+    /**
+     * Retorna o ID do pedido.
+     *
+     * @return ID do pedido
+     */
     public Long getId() {
         return id;
     }
 
+    /**
+     * Define o ID do pedido.
+     *
+     * @param id ID do pedido
+     */
     public void setId(Long id) {
         this.id = id;
     }
 
+    /**
+     * Retorna a lista de produtos do pedido.
+     *
+     * @return lista de produtos
+     */
     public List<Produto> getProdutos() {
         return produtos;
     }
 
+    /**
+     * Adiciona um produto ao pedido.
+     *
+     * @param produto produto a ser adicionado
+     * @throws LimiteProdutosException        se o limite de produtos for excedido
+     * @throws NaoExisteMenuException         se não houver menu associado ao pedido
+     * @throws ProdutoNaoExisteNoMenuException se o produto não existir no menu
+     */
     public abstract void addProduto(Produto produto) throws LimiteProdutosException, NaoExisteMenuException, ProdutoNaoExisteNoMenuException;
 
+    /**
+     * Remove um produto do pedido.
+     *
+     * @param produto produto a ser removido
+     */
     public void removeProduto(Produto produto) {
-        
         this.produtos.remove(produto);
     }
 
+    /**
+     * Retorna o valor total do pedido.
+     *
+     * @return valor total do pedido
+     */
     public abstract double getSomarTotal();
 }
