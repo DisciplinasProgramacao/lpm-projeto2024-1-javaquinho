@@ -108,16 +108,7 @@ public class RestauranteController {
     @PutMapping("/desalocar/{requisicaoId}")
     public ResponseEntity<String> desalocarMesaDeRequisicao(@PathVariable Long requisicaoId) {
         String resultado = restaurante.desalocarMesaDeRequisicao(requisicaoId);
-
-        // Após desalocar a mesa e finalizar a requisição, obter o total do pedido
-        Requisicao requisicao = requisicaoRepository.findById(requisicaoId).orElse(null);
-        if (requisicao == null || requisicao.getPedido() == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        double totalPedido = requisicao.getPedido().getSomarTotal();
-
-        return ResponseEntity.ok(resultado + "\nTotal do Pedido: " + totalPedido);
+        return ResponseEntity.ok(resultado);
     }
 
     /**

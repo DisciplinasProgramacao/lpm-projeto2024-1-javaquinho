@@ -84,10 +84,15 @@ public class Requisicao {
      * @throws IllegalStateException se a mesa for nula.
      */
     public void encerrar() {
-        saida = LocalDateTime.now();
-        mesa.desocupar();
-        encerrada = true;
+        if (this.mesa == null) {
+            throw new IllegalStateException("Nenhuma mesa está alocada a esta requisição.");
+        }
+        this.saida = LocalDateTime.now();
+        this.mesa.desocupar();
+        this.encerrada = true;
+        this.mesa = null;
     }
+    
 
     public void alocarMesa(Mesa mesa) {
         if (mesa.estahLiberada(quantPessoas)) {

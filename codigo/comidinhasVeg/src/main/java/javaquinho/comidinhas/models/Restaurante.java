@@ -147,29 +147,27 @@ public class Restaurante {
         return "Mesa alocada para a requisição com sucesso!";
     }
 
-    /**
-     * Finaliza uma requisição, desalocando a mesa e, se houver, realocando a
-     * próxima da fila de espera.
-     * Calcula o total do pedido ao finalizar.
-     * 
-     * @param requisicaoId ID da requisição a ser finalizada
-     * @return Mensagem indicando o resultado da finalização da requisição e o total
-     *         do pedido
-     */
-    public String desalocarMesaDeRequisicao(Long requisicaoId) {
-        Requisicao requisicao = requisicaoRepository.findById(requisicaoId).orElse(null);
-        if (requisicao == null) {
-            return "Requisição não encontrada.";
-        }
+/**
+ * Finaliza uma requisição, desalocando a mesa e, se houver, realocando a
+ * próxima da fila de espera.
+ * Calcula o total do pedido ao finalizar.
+ * 
+ * @param requisicaoId ID da requisição a ser finalizada
+ * @return Mensagem indicando o resultado da finalização da requisição e o total
+ *         do pedido
+ */
+public String desalocarMesaDeRequisicao(Long requisicaoId) {
+    Requisicao requisicao = requisicaoRepository.findById(requisicaoId).orElse(null);
+    if (requisicao == null) {
+        return "Requisição não encontrada.";
+    }
 
-        if (requisicao.getMesa() == null) {
-            return "Nenhuma mesa está alocada a esta requisição.";
-        }
+    if (requisicao.getMesa() == null) {
+        return "Nenhuma mesa está alocada a esta requisição.";
+    }
 
-        requisicao.setSaida(LocalDateTime.now());
-        requisicao.getMesa().desocupar();
-        requisicao.setMesa(null);
-        requisicao.setEncerrada(true);
+    try {
+        requisicao.encerrar();
         requisicaoRepository.save(requisicao);
 
         if (!filaEspera.isEmpty()) {
@@ -178,9 +176,13 @@ public class Restaurante {
         }
 
         double totalPedido = requisicao.getPedido().getSomarTotal();
-
         return "Mesa desalocada. Requisição finalizada com sucesso!\nTotal do Pedido: " + totalPedido;
+    } catch (IllegalStateException e) {
+        return e.getMessage();
     }
+}
+
+    
 
     /**
      * Cria um menu aberto com os produtos especificados.
