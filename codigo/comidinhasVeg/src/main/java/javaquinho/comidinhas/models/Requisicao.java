@@ -76,15 +76,17 @@ public class Requisicao {
         this.cliente = cliente;
         this.quantPessoas = quantPessoas;
     }
-  
-    public Mesa encerrar() {
-        if (mesa == null) {
-            throw new IllegalStateException("Não é possível encerrar uma requisição sem uma mesa alocada.");
-        }
+
+    /**
+     * Método para encerrar a requisição, liberando a mesa associada.
+     * 
+     * @param mesa Mesa a ser desocupada.
+     * @throws IllegalStateException se a mesa for nula.
+     */
+    public void encerrar() {
         saida = LocalDateTime.now();
         mesa.desocupar();
         encerrada = true;
-        return mesa;
     }
 
     public void alocarMesa(Mesa mesa) {
