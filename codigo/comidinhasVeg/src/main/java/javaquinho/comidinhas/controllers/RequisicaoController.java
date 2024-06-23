@@ -55,7 +55,7 @@ public class RequisicaoController {
     @Autowired
     private PedidoRepository pedidoRepository;
 
-        /**
+    /**
      * Retorna todas as requisições.
      *
      * @return uma lista de objetos Requisicao
@@ -69,7 +69,8 @@ public class RequisicaoController {
      * Retorna uma requisição específica com base no ID fornecido.
      *
      * @param id o ID da requisição a ser retornada
-     * @return um objeto ResponseEntity contendo a requisição solicitada ou um status 404 se não encontrada
+     * @return um objeto ResponseEntity contendo a requisição solicitada ou um
+     *         status 404 se não encontrada
      */
     @GetMapping("/{id}")
     public ResponseEntity<Requisicao> getRequisicaoById(@PathVariable Long id) {
@@ -85,7 +86,8 @@ public class RequisicaoController {
      * Encerra uma requisição com base no ID fornecido.
      *
      * @param id o ID da requisição a ser encerrada
-     * @return um objeto ResponseEntity contendo a requisição encerrada ou um status 404 se não encontrada
+     * @return um objeto ResponseEntity contendo a requisição encerrada ou um status
+     *         404 se não encontrada
      */
     @PutMapping("/{id}/encerrar")
     public ResponseEntity<Requisicao> encerrarRequisicao(@PathVariable Long id) {
@@ -101,11 +103,11 @@ public class RequisicaoController {
     /**
      * Endpoint de teste para vincular um menu a uma requisição e criar um pedido.
      *
-     * @param id o ID da requisição
+     * @param id     o ID da requisição
      * @param idMenu o ID do menu
      * @return uma mensagem de sucesso ou falha
      */
-    @PostMapping("/teste/{id}/{idMenu}")
+    @PostMapping("/atribuir-menu/{id}/{idMenu}")
     public ResponseEntity<String> teste(@PathVariable Long id, @PathVariable Long idMenu) {
         Requisicao requisicao = requisicaoRepository.findById(id).orElse(null);
         Menu menu = menuRepository.findById(idMenu).orElse(null);
@@ -134,7 +136,7 @@ public class RequisicaoController {
     /**
      * Cria uma nova requisição.
      *
-     * @param idCliente o ID do cliente
+     * @param idCliente    o ID do cliente
      * @param quantPessoas a quantidade de pessoas na requisição
      * @return a nova requisição criada
      */
@@ -148,7 +150,7 @@ public class RequisicaoController {
     /**
      * Adiciona um pedido à requisição com base no tipo de pedido fornecido.
      *
-     * @param id o ID da requisição
+     * @param id         o ID da requisição
      * @param tipoPedido o tipo de pedido ("aberto" ou "fechado")
      * @return uma mensagem de sucesso ou falha
      */
@@ -181,9 +183,10 @@ public class RequisicaoController {
     /**
      * Aloca uma mesa para a requisição passando o ID da requisição e o ID da mesa.
      *
-     * @param id o ID da requisição
+     * @param id     o ID da requisição
      * @param idMesa o ID da mesa a ser alocada
-     * @return um objeto ResponseEntity contendo a requisição atualizada ou um status 404 se não encontrada
+     * @return um objeto ResponseEntity contendo a requisição atualizada ou um
+     *         status 404 se não encontrada
      */
     @PatchMapping("/alocar/{id}/{idMesa}")
     public ResponseEntity<Requisicao> alocarMesa(@PathVariable Long id, @PathVariable Integer idMesa) {
@@ -197,9 +200,10 @@ public class RequisicaoController {
     /**
      * Adiciona um produto a um pedido existente em uma requisição.
      *
-     * @param id o ID da requisição
+     * @param id        o ID da requisição
      * @param idProduto o ID do produto a ser adicionado
-     * @return um objeto ResponseEntity contendo a requisição atualizada ou um status 404/500 conforme apropriado
+     * @return um objeto ResponseEntity contendo a requisição atualizada ou um
+     *         status 404/500 conforme apropriado
      */
     @PutMapping("/adicionarProduto/{id}/{idProduto}")
     public ResponseEntity<Requisicao> adicionarProduto(@PathVariable Long id, @PathVariable Long idProduto) {

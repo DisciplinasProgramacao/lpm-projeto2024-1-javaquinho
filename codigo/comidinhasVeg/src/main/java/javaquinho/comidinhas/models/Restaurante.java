@@ -16,6 +16,11 @@ import javaquinho.comidinhas.repositories.ProdutoRepository;
 import javaquinho.comidinhas.repositories.MenuRepository;
 import javaquinho.comidinhas.repositories.RequisicaoRepository;
 
+/**
+ * Serviço que gerencia operações relacionadas ao restaurante, como criação de
+ * clientes,
+ * mesas, produtos, requisições e menus.
+ */
 @Service
 public class Restaurante {
 
@@ -34,23 +39,25 @@ public class Restaurante {
     @Autowired
     private ProdutoRepository produtoRepository;
 
-
-    //Criação da fila de espera
     private Queue<Requisicao> filaEspera = new LinkedList<>();
 
-    //para criar clientes
+    /**
+     * Cria novos clientes no sistema.
+     * 
+     * @param clientes Lista de clientes a serem criados
+     * @return Lista de clientes criados
+     */
     public List<Cliente> criarClientes(List<Cliente> clientes) {
         return clienteRepository.saveAll(clientes);
     }
 
-    //para criar produtos
-    public String criarProdutos(List<Produto> produtos) {
-        produtoRepository.saveAll(produtos);
-        return "Os produtos do restaurante foram iniciados";
-    }
-    
-    
-    //para criar mesas
+    /**
+     * Cria novas mesas no restaurante, verificando o limite de 10 mesas.
+     * 
+     * @param mesas Lista de mesas a serem criadas
+     * @return Lista de mesas criadas
+     * @throws IllegalStateException Se o número máximo de mesas (10) for excedido
+     */
     public List<Mesa> criarMesas(List<Mesa> mesas) {
         long count = mesaRepository.count();
         if (count + mesas.size() > 10) {
@@ -59,17 +66,55 @@ public class Restaurante {
         return mesaRepository.saveAll(mesas);
     }
 
-    //cria uma requisicao
+    /**
+     * Cria novos produtos no restaurante.
+     * 
+     * @param produtos Lista de produtos a serem criados
+     * @return Mensagem indicando a criação dos produtos
+     */
+    public String criarProdutos(List<Produto> produtos) {
+        produtoRepository.saveAll(produtos);
+        return "Os produtos do restaurante foram iniciados";
+    }
+
+    /**
+     * Cria uma requisição para um cliente, tentando alocar uma mesa
+     * automaticamente.
+     * Se não houver mesas disponíveis, adiciona a requisição à fila de espera.
+     * 
+     * @param requisicao Requisição a ser criada
+     * @return Mensagem indicando o resultado da criação da requisição
+     * @throws IllegalArgumentException Se o cliente for nulo ou a quantidade de
+     *                                  pessoas for menor que 1
+     */
     public String criarRequisicao(Requisicao requisicao) {
         if (requisicao.getCliente() == null || requisicao.getQuantPessoas() < 1) {
-            throw new IllegalArgumentException("Cliente não pode ser nulo e a quantidade de pessoas deve ser pelo menos 1.");
+            throw new IllegalArgumentException(
+                    "Cliente não pode ser nulo e a quantidade de pessoas deve ser pelo menos 1.");
         }
 
         requisicao = requisicaoRepository.save(requisicao);
-        return alocarMesaParaRequisicao(requisicao.getId());
+
+        String resultadoAlocacao = alocarMesaParaRequisicao(requisicao.getId());
+
+        if (resultadoAlocacao.startsWith("Mesa alocada")) {
+            requisicao.setEntrada(LocalDateTime.now());
+            requisicaoRepository.save(requisicao);
+        }
+
+        if (!resultadoAlocacao.startsWith("Mesa alocada")) {
+            filaEspera.add(requisicao);
+        }
+
+        return resultadoAlocacao;
     }
 
-    //aloca uma mesa para uma requisicao criada, iniciando-a
+    /**
+     * Tenta alocar uma mesa para uma requisição com base na capacidade necessária.
+     * 
+     * @param requisicaoId ID da requisição
+     * @return Mensagem indicando o resultado da alocação da mesa
+     */
     public String alocarMesaParaRequisicao(Long requisicaoId) {
         Requisicao requisicao = requisicaoRepository.findById(requisicaoId).orElse(null);
         if (requisicao == null) {
@@ -102,7 +147,15 @@ public class Restaurante {
         return "Mesa alocada para a requisição com sucesso!";
     }
 
-    //finaliza uma requisicao, desalocando a mesa
+    /**
+     * Finaliza uma requisição, desalocando a mesa e, se houver, realocando a
+     * próxima da fila de espera.
+     * Calcula o total do pedido ao finalizar.
+     * 
+     * @param requisicaoId ID da requisição a ser finalizada
+     * @return Mensagem indicando o resultado da finalização da requisição e o total
+     *         do pedido
+     */
     public String desalocarMesaDeRequisicao(Long requisicaoId) {
         Requisicao requisicao = requisicaoRepository.findById(requisicaoId).orElse(null);
         if (requisicao == null) {
@@ -124,17 +177,31 @@ public class Restaurante {
             alocarMesaParaRequisicao(proximaRequisicao.getId());
         }
 
-        return "Mesa desalocada. Requisição finalizada com sucesso!";
+        double totalPedido = requisicao.getPedido().getSomarTotal();
+
+        return "Mesa desalocada. Requisição finalizada com sucesso!\nTotal do Pedido: " + totalPedido;
     }
 
-    //cria um menu aberto
-        public String criarMenuAberto(Set<Produto> produtos) {
+    /**
+     * Cria um menu aberto com os produtos especificados.
+     * 
+     * @param produtos Conjunto de produtos do menu aberto
+     * @return Mensagem indicando o resultado da criação do menu aberto
+     */
+    public String criarMenuAberto(Set<Produto> produtos) {
         MenuAberto menuAberto = new MenuAberto(produtos);
         menuRepository.save(menuAberto);
         return "Menu aberto criado com sucesso!";
     }
 
-    //cria um menu fechado
+    /**
+     * Cria um menu fechado com os produtos especificados.
+     * 
+     * @param produtos Conjunto de produtos do menu fechado
+     * @return Mensagem indicando o resultado da criação do menu fechado
+     * @throws LimiteProdutosException Se o número de produtos no menu fechado
+     *                                 exceder o limite permitido
+     */
     public String criarMenuFechado(Set<Produto> produtos) throws LimiteProdutosException {
         MenuFechado menuFechado = new MenuFechado(produtos);
         menuRepository.save(menuFechado);
