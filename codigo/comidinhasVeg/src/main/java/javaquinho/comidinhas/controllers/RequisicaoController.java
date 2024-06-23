@@ -55,11 +55,13 @@ public class RequisicaoController {
     @Autowired
     private PedidoRepository pedidoRepository;
 
+    /*Get todas as requisições*/
     @GetMapping
     public List<Requisicao> getAllRequisicoes() {
         return requisicaoRepository.findAll();
     }
 
+    /*Get requisição pelo id dela*/
     @GetMapping("/{id}")
     public ResponseEntity<Requisicao> getRequisicaoById(@PathVariable Long id) {
         Optional<Requisicao> requisicao = requisicaoRepository.findById(id);
@@ -145,6 +147,7 @@ public class RequisicaoController {
 
     }
 
+    /*Patch que aloca uma mesa para a requisição passando o id da requisição e o id da mesa.*/
     @PatchMapping("/alocar/{id}/{idMesa}")
     public ResponseEntity<Requisicao> alocarMesa(@PathVariable Long id, @PathVariable Integer idMesa) {
         Requisicao requisicao = requisicaoRepository.findById(id).orElse(null);

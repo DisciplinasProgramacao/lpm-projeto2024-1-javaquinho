@@ -7,5 +7,7 @@ import javaquinho.comidinhas.models.Mesa;
 
 @Repository
 public interface MesaRepository extends JpaRepository<Mesa, Integer> {
+
+    //filtrar quais mesas estão disponíveis para o funcionamento da alocação
     List<Mesa> findByCapacidadeAndOcupada(int capacidade, boolean ocupada);
 }

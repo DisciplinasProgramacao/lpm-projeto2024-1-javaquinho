@@ -4,9 +4,12 @@ import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javaquinho.comidinhas.excecoes.LimiteProdutosException;
 import javaquinho.comidinhas.repositories.ClienteRepository;
 import javaquinho.comidinhas.repositories.MesaRepository;
 import javaquinho.comidinhas.repositories.ProdutoRepository;
@@ -32,7 +35,7 @@ public class Restaurante {
     private ProdutoRepository produtoRepository;
 
 
-    //A fila de espera
+    //Criação da fila de espera
     private Queue<Requisicao> filaEspera = new LinkedList<>();
 
     //para criar clientes
@@ -66,7 +69,7 @@ public class Restaurante {
         return alocarMesaParaRequisicao(requisicao.getId());
     }
 
-    //aloca a mesa para uma requisicao, iniciando-a
+    //aloca uma mesa para uma requisicao criada, iniciando-a
     public String alocarMesaParaRequisicao(Long requisicaoId) {
         Requisicao requisicao = requisicaoRepository.findById(requisicaoId).orElse(null);
         if (requisicao == null) {
@@ -96,7 +99,7 @@ public class Restaurante {
 
         requisicao.alocarMesa(mesa);
         requisicaoRepository.save(requisicao);
-        return "Mesa alocada com sucesso.";
+        return "Mesa alocada para a requisição com sucesso!";
     }
 
     //finaliza uma requisicao, desalocando a mesa
@@ -121,6 +124,20 @@ public class Restaurante {
             alocarMesaParaRequisicao(proximaRequisicao.getId());
         }
 
-        return "Mesa desalocada com sucesso.";
+        return "Mesa desalocada. Requisição finalizada com sucesso!";
+    }
+
+    //cria um menu aberto
+        public String criarMenuAberto(Set<Produto> produtos) {
+        MenuAberto menuAberto = new MenuAberto(produtos);
+        menuRepository.save(menuAberto);
+        return "Menu aberto criado com sucesso!";
+    }
+
+    //cria um menu fechado
+    public String criarMenuFechado(Set<Produto> produtos) throws LimiteProdutosException {
+        MenuFechado menuFechado = new MenuFechado(produtos);
+        menuRepository.save(menuFechado);
+        return "Menu fechado criado com sucesso!";
     }
 }
