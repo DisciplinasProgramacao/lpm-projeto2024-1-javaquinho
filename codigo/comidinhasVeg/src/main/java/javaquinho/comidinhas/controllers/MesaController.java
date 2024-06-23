@@ -15,11 +15,13 @@ public class MesaController {
     @Autowired
     private MesaRepository mesaRepository;
 
+    /*Get para mostrar todas as mesas do restaurante */
     @GetMapping
     public List<Mesa> getAllMesas() {
         return mesaRepository.findAll();
     }
 
+    /*Get que mostra a mesa passando o id */
     @GetMapping("/{id}")
     public ResponseEntity<Mesa> getMesaById(@PathVariable int id) {
         return mesaRepository.findById(id)
@@ -27,6 +29,7 @@ public class MesaController {
             .orElse(ResponseEntity.notFound().build());
     }
 
+    /*Patch para ocupar uma mesa passando o id da mesa */
     @PatchMapping("/ocupar/{id}")
     public ResponseEntity<Mesa> updateOcuparMesa(@PathVariable int id, @RequestBody Mesa mesa) {
         return mesaRepository.findById(id)
@@ -38,6 +41,7 @@ public class MesaController {
             .orElse(ResponseEntity.notFound().build());
     } 
 
+    /*Patch para desocupar uma mesa passando o id da mesa */
     @PatchMapping("/desocupar/{id}")
     public ResponseEntity<Mesa> updateDesocuparMesa(@PathVariable int id, @RequestBody Mesa mesa) {
         return mesaRepository.findById(id)
@@ -49,11 +53,14 @@ public class MesaController {
             .orElse(ResponseEntity.notFound().build());
     } 
 
+    /*Post para criar uma mesa */
     @PostMapping
     public Mesa createMesa(@RequestBody Mesa mesa){
         return mesaRepository.save(mesa);
     }
 
+
+    /*Post para criar uma lista de mesas */
     @PostMapping("/lista")
     public ResponseEntity<?> createMesas(@RequestBody List<Mesa> mesas) {
         try {
@@ -64,6 +71,7 @@ public class MesaController {
         }
     }
 
+    /*Rota para deletar uma mesa */
     @DeleteMapping("/{id}")
     public ResponseEntity<Mesa> deleteMesa(@PathVariable int id) {
         return mesaRepository.findById(id)
