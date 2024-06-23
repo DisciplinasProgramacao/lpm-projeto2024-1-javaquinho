@@ -55,13 +55,22 @@ public class RequisicaoController {
     @Autowired
     private PedidoRepository pedidoRepository;
 
-    /*Get todas as requisições*/
+        /**
+     * Retorna todas as requisições.
+     *
+     * @return uma lista de objetos Requisicao
+     */
     @GetMapping
     public List<Requisicao> getAllRequisicoes() {
         return requisicaoRepository.findAll();
     }
 
-    /*Get requisição pelo id dela*/
+    /**
+     * Retorna uma requisição específica com base no ID fornecido.
+     *
+     * @param id o ID da requisição a ser retornada
+     * @return um objeto ResponseEntity contendo a requisição solicitada ou um status 404 se não encontrada
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Requisicao> getRequisicaoById(@PathVariable Long id) {
         Optional<Requisicao> requisicao = requisicaoRepository.findById(id);
@@ -72,6 +81,12 @@ public class RequisicaoController {
         }
     }
 
+    /**
+     * Encerra uma requisição com base no ID fornecido.
+     *
+     * @param id o ID da requisição a ser encerrada
+     * @return um objeto ResponseEntity contendo a requisição encerrada ou um status 404 se não encontrada
+     */
     @PutMapping("/{id}/encerrar")
     public ResponseEntity<Requisicao> encerrarRequisicao(@PathVariable Long id) {
         Requisicao requisicao = requisicaoRepository.findById(id).orElse(null);
@@ -83,35 +98,46 @@ public class RequisicaoController {
         }
     }
 
+    /**
+     * Endpoint de teste para vincular um menu a uma requisição e criar um pedido.
+     *
+     * @param id o ID da requisição
+     * @param idMenu o ID do menu
+     * @return uma mensagem de sucesso ou falha
+     */
     @PostMapping("/teste/{id}/{idMenu}")
-    public ResponseEntity<String> teste(@PathVariable Long id, @PathVariable Long idMenu){
+    public ResponseEntity<String> teste(@PathVariable Long id, @PathVariable Long idMenu) {
         Requisicao requisicao = requisicaoRepository.findById(id).orElse(null);
         Menu menu = menuRepository.findById(idMenu).orElse(null);
 
-            try {
-                Pedido pedido;
-                System.out.println(menu.getClassName());
-                if (menu.getClassName().equals("MenuAberto")){
-                    pedido = new PedidoAberto(requisicao.getQuantPessoas(), (MenuAberto) menu);
-                }
-                else if(menu.getClassName().equals("MenuFechado")){
-                    pedido = new PedidoFechado(requisicao.getQuantPessoas(), (MenuFechado) menu);
-                }
-                else {
-                    throw new Exception("");
-                }
-                pedidoRepository.save(pedido);
-                requisicao.setPedido(pedido);
-                requisicaoRepository.save(requisicao);
-    
-            }catch(Exception e){
-                ResponseEntity.notFound().build();
+        try {
+            Pedido pedido;
+            System.out.println(menu.getClassName());
+            if (menu.getClassName().equals("MenuAberto")) {
+                pedido = new PedidoAberto(requisicao.getQuantPessoas(), (MenuAberto) menu);
+            } else if (menu.getClassName().equals("MenuFechado")) {
+                pedido = new PedidoFechado(requisicao.getQuantPessoas(), (MenuFechado) menu);
+            } else {
+                throw new Exception("");
             }
+            pedidoRepository.save(pedido);
+            requisicao.setPedido(pedido);
+            requisicaoRepository.save(requisicao);
 
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
 
         return ResponseEntity.ok().body("yay");
     }
 
+    /**
+     * Cria uma nova requisição.
+     *
+     * @param idCliente o ID do cliente
+     * @param quantPessoas a quantidade de pessoas na requisição
+     * @return a nova requisição criada
+     */
     @PostMapping("/{idCliente}/{quantPessoas}")
     public Requisicao createRequisicao(@PathVariable Integer idCliente, @PathVariable Integer quantPessoas) {
         Cliente cliente = clienteRepository.findById(idCliente).orElse(null);
@@ -119,7 +145,13 @@ public class RequisicaoController {
         return requisicaoRepository.save(req);
     }
 
-    /* patch que linka um pedido a requisição */
+    /**
+     * Adiciona um pedido à requisição com base no tipo de pedido fornecido.
+     *
+     * @param id o ID da requisição
+     * @param tipoPedido o tipo de pedido ("aberto" ou "fechado")
+     * @return uma mensagem de sucesso ou falha
+     */
     @PutMapping("/adicionar-pedido-aberto/{id}/{tipoPedido}")
     public ResponseEntity<String> adicionarPedidoAberto(@PathVariable Long id, @PathVariable String tipoPedido) {
         Requisicao requisicao = requisicaoRepository.findById(id).orElse(null);
@@ -144,10 +176,15 @@ public class RequisicaoController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
-
     }
 
-    /*Patch que aloca uma mesa para a requisição passando o id da requisição e o id da mesa.*/
+    /**
+     * Aloca uma mesa para a requisição passando o ID da requisição e o ID da mesa.
+     *
+     * @param id o ID da requisição
+     * @param idMesa o ID da mesa a ser alocada
+     * @return um objeto ResponseEntity contendo a requisição atualizada ou um status 404 se não encontrada
+     */
     @PatchMapping("/alocar/{id}/{idMesa}")
     public ResponseEntity<Requisicao> alocarMesa(@PathVariable Long id, @PathVariable Integer idMesa) {
         Requisicao requisicao = requisicaoRepository.findById(id).orElse(null);
@@ -157,6 +194,13 @@ public class RequisicaoController {
         return ResponseEntity.ok(requisicao);
     }
 
+    /**
+     * Adiciona um produto a um pedido existente em uma requisição.
+     *
+     * @param id o ID da requisição
+     * @param idProduto o ID do produto a ser adicionado
+     * @return um objeto ResponseEntity contendo a requisição atualizada ou um status 404/500 conforme apropriado
+     */
     @PutMapping("/adicionarProduto/{id}/{idProduto}")
     public ResponseEntity<Requisicao> adicionarProduto(@PathVariable Long id, @PathVariable Long idProduto) {
         Requisicao req = requisicaoRepository.findById(id).orElse(null);
@@ -173,5 +217,4 @@ public class RequisicaoController {
             return ResponseEntity.notFound().build();
         }
     }
-
 }
