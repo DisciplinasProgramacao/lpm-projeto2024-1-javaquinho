@@ -11,15 +11,15 @@ public class PedidoFechado extends Pedido<MenuFechado> {
     private static int MAXIMO_ITENS_PESSOA = 2;
 
     public PedidoFechado(int qntPessoas) {
-        setQntPessoas(qntPessoas);
+        super(qntPessoas);
     }
 
     public PedidoFechado(int qntPessoas, MenuFechado menu) throws MenuInvalidoException {
-        setQntPessoas(qntPessoas);
-        setMenu(menu);
+        super(qntPessoas, menu);
     }
 
     public PedidoFechado() {
+        super();
     }
 
     @Override

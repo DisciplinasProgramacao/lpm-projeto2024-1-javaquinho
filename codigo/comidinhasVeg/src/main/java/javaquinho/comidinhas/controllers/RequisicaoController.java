@@ -17,6 +17,9 @@ import javaquinho.comidinhas.excecoes.LimiteProdutosException;
 import javaquinho.comidinhas.excecoes.NaoExisteMenuException;
 import javaquinho.comidinhas.excecoes.ProdutoNaoExisteNoMenuException;
 import javaquinho.comidinhas.models.Cliente;
+import javaquinho.comidinhas.models.Menu;
+import javaquinho.comidinhas.models.MenuAberto;
+import javaquinho.comidinhas.models.MenuFechado;
 import javaquinho.comidinhas.models.Mesa;
 import javaquinho.comidinhas.models.Pedido;
 import javaquinho.comidinhas.models.PedidoAberto;
@@ -25,6 +28,7 @@ import javaquinho.comidinhas.models.Produto;
 import javaquinho.comidinhas.models.Requisicao;
 import javaquinho.comidinhas.repositories.RequisicaoRepository;
 import javaquinho.comidinhas.repositories.ClienteRepository;
+import javaquinho.comidinhas.repositories.MenuRepository;
 import javaquinho.comidinhas.repositories.MesaRepository;
 import javaquinho.comidinhas.repositories.PedidoRepository;
 import javaquinho.comidinhas.repositories.ProdutoRepository;
@@ -35,6 +39,9 @@ public class RequisicaoController {
 
     @Autowired
     private RequisicaoRepository requisicaoRepository;
+
+    @Autowired
+    private MenuRepository menuRepository;
 
     @Autowired
     private ProdutoRepository produtoRepository;
@@ -63,8 +70,6 @@ public class RequisicaoController {
         }
     }
 
-    
-
     @PutMapping("/{id}/encerrar")
     public ResponseEntity<Requisicao> encerrarRequisicao(@PathVariable Long id) {
         Requisicao requisicao = requisicaoRepository.findById(id).orElse(null);
@@ -76,30 +81,55 @@ public class RequisicaoController {
         }
     }
 
+    @PostMapping("/teste/{id}/{idMenu}")
+    public ResponseEntity<String> teste(@PathVariable Long id, @PathVariable Long idMenu){
+        Requisicao requisicao = requisicaoRepository.findById(id).orElse(null);
+        Menu menu = menuRepository.findById(idMenu).orElse(null);
+
+            try {
+                Pedido pedido;
+                System.out.println(menu.getClassName());
+                if (menu.getClassName().equals("MenuAberto")){
+                    pedido = new PedidoAberto(requisicao.getQuantPessoas(), (MenuAberto) menu);
+                }
+                else if(menu.getClassName().equals("MenuFechado")){
+                    pedido = new PedidoFechado(requisicao.getQuantPessoas(), (MenuFechado) menu);
+                }
+                else {
+                    throw new Exception("");
+                }
+                pedidoRepository.save(pedido);
+                requisicao.setPedido(pedido);
+                requisicaoRepository.save(requisicao);
     
+            }catch(Exception e){
+                ResponseEntity.notFound().build();
+            }
+
+
+        return ResponseEntity.ok().body("yay");
+    }
 
     @PostMapping("/{idCliente}/{quantPessoas}")
     public Requisicao createRequisicao(@PathVariable Integer idCliente, @PathVariable Integer quantPessoas) {
         Cliente cliente = clienteRepository.findById(idCliente).orElse(null);
         Requisicao req = new Requisicao(cliente, quantPessoas);
-        return requisicaoRepository.save(req);   
+        return requisicaoRepository.save(req);
     }
 
-    /*patch que linka um pedido a requisição */
+    /* patch que linka um pedido a requisição */
     @PutMapping("/adicionar-pedido-aberto/{id}/{tipoPedido}")
-    public ResponseEntity<String> adicionarPedidoAberto(@PathVariable Long id, @PathVariable String tipoPedido){
+    public ResponseEntity<String> adicionarPedidoAberto(@PathVariable Long id, @PathVariable String tipoPedido) {
         Requisicao requisicao = requisicaoRepository.findById(id).orElse(null);
         try {
             if (requisicao != null) {
                 System.out.println(tipoPedido);
                 Pedido pedido;
-                if (tipoPedido.toLowerCase().equals("aberto")){
+                if (tipoPedido.toLowerCase().equals("aberto")) {
                     pedido = new PedidoAberto(requisicao.getQuantPessoas());
-                }
-                else if (tipoPedido.toLowerCase().equals("fechado")){
+                } else if (tipoPedido.toLowerCase().equals("fechado")) {
                     pedido = new PedidoFechado(requisicao.getQuantPessoas());
-                }
-                else {
+                } else {
                     throw new Exception("parâmetro de tipo de pedido incorreto!");
                 }
                 requisicao.setPedido(pedido);
@@ -109,10 +139,10 @@ public class RequisicaoController {
             } else {
                 return ResponseEntity.notFound().build();
             }
-        } catch(Exception e ){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
-        
+
     }
 
     @PatchMapping("/alocar/{id}/{idMesa}")
@@ -124,23 +154,21 @@ public class RequisicaoController {
         return ResponseEntity.ok(requisicao);
     }
 
-
     @PutMapping("/adicionarProduto/{id}/{idProduto}")
     public ResponseEntity<Requisicao> adicionarProduto(@PathVariable Long id, @PathVariable Long idProduto) {
         Requisicao req = requisicaoRepository.findById(id).orElse(null);
         Produto prod = produtoRepository.findById(idProduto).orElse(null);
         if (req != null && prod != null) {
-        Pedido pedido = req.getPedido();
-        try {
-            pedido.addProduto(prod);
-            return ResponseEntity.ok(requisicaoRepository.save(req));
-        } catch (LimiteProdutosException | NaoExisteMenuException | ProdutoNaoExisteNoMenuException e) {
-            return ResponseEntity.status(500).build();
+            Pedido pedido = req.getPedido();
+            try {
+                pedido.addProduto(prod);
+                return ResponseEntity.ok(requisicaoRepository.save(req));
+            } catch (LimiteProdutosException | NaoExisteMenuException | ProdutoNaoExisteNoMenuException e) {
+                return ResponseEntity.status(500).build();
+            }
+        } else {
+            return ResponseEntity.notFound().build();
         }
-    } else {
-        return ResponseEntity.notFound().build();
     }
-}
-
 
 }

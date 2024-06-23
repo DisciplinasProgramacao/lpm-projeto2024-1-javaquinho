@@ -23,5 +23,4 @@ public class MenuAberto extends Menu{
     public void setProdutos(Set<Produto> produtos){
             this.produtos = produtos;
     }
-    
 }

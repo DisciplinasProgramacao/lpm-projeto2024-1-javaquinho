@@ -7,15 +7,16 @@ import javaquinho.comidinhas.excecoes.ProdutoNaoExisteNoMenuException;
 @Entity
 public class PedidoAberto extends Pedido<MenuAberto> {
     public PedidoAberto(int qntPessoas){
-        this.setQntPessoas(qntPessoas);
+        super(qntPessoas);
     }
 
     public PedidoAberto(int qntPessoas, MenuAberto menu) throws MenuInvalidoException{
-        setQntPessoas(qntPessoas);
-        setMenu(menu);
+        super(qntPessoas, menu);
     }
 
-    public PedidoAberto(){}
+    public PedidoAberto(){
+        super();
+    }
     
     @Override
     public void setMenu(MenuAberto menu) throws MenuInvalidoException{

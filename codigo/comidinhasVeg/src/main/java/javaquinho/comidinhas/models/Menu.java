@@ -58,4 +58,8 @@ public abstract class Menu {
     }
 
     public abstract void adicionarProduto(Produto produto) throws LimiteProdutosException;
+
+    public String getClassName(){
+        return this.getClass().getSimpleName();
+    }
 }

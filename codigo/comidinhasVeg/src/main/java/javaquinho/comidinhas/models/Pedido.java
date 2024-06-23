@@ -37,12 +37,23 @@ public abstract class Pedido<T extends Menu> {
     )
     protected List<Produto> produtos = new ArrayList<>();
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "menu_id", nullable = true)
     protected Menu menu;
 
     @Column(name = "qntPessoas", nullable = false)
     protected int qntPessoas;
+
+    public Pedido(){}
+    
+    public Pedido(int qntPessoas){
+        setQntPessoas(qntPessoas);
+    }
+
+    public Pedido(int qntPessoas, T menu) throws MenuInvalidoException{
+        setQntPessoas(qntPessoas);
+        setMenu(menu);
+    }
 
     public Menu getMenu(){
         return menu;
