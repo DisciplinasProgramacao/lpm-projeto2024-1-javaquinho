@@ -48,4 +48,19 @@ Sem App - Joao - 0
 
 Cliente Controller - Ian 
 
-Sem Controllernem classe Pedido - Ian - 5
+Sem Controller nem classe Pedido - Ian - 8,5 (nota considerando implementação atrasada)
+
+# Sprint 3 - Até 05/junho
+  - Nota de grupo (6 pontos)
+    - Modelo atualizado - menu fechado
+  
+  - Nota individual (14 pontos)	
+    - Implementações menu fechado e app
+    - Correções anteriores
+
+### Commit ae2a9d4 (10/06)
+Corrigido: classe Pedido e Pedido controller - Ian (nota lançada na sprint anterior)
+
+Diagrama sem menu fechado ou pedido fechado - 0 
+
+_A implementacao do master está praticamente igual ao fim da sprint 2. Vocês ficam sem nota aqui por enquanto para serem avaliados proporcionalmente ao que foi melhorado na sprint 4, mas considerando como entrega em atraso_
