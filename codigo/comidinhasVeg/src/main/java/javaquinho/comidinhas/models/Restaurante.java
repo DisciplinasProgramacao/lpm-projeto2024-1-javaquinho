@@ -62,7 +62,9 @@ public class Restaurante {
         if (requisicao.getCliente() == null || requisicao.getQuantPessoas() < 1) {
             throw new IllegalArgumentException("Cliente não pode ser nulo e a quantidade de pessoas deve ser pelo menos 1.");
         }
-        return requisicaoRepository.save(requisicao);
+        requisicao = requisicaoRepository.save(requisicao);
+        alocarMesaParaRequisicao(requisicao.getId());
+        return requisicao;
     }
 
     public String alocarMesaParaRequisicao(Long requisicaoId) {
@@ -70,16 +72,15 @@ public class Restaurante {
         if (requisicao == null) {
             return "Requisição não encontrada.";
         }
-    
+
         int quantPessoas = requisicao.getQuantPessoas();
         List<Mesa> mesasDisponiveis = mesaRepository.findByCapacidadeAndOcupada(quantPessoas, false);
-    
+
         if (mesasDisponiveis.isEmpty()) {
             filaEspera.add(requisicao);
             return "Não há mesas disponíveis. A requisição foi adicionada à fila de espera.";
         }
-    
-        // Encontrar a primeira mesa com capacidade suficiente
+
         Mesa mesa = null;
         for (Mesa m : mesasDisponiveis) {
             if (m.getCapacidade() >= quantPessoas) {
@@ -87,18 +88,18 @@ public class Restaurante {
                 break;
             }
         }
-    
+
         if (mesa == null) {
+            filaEspera.add(requisicao);
             return "Não há mesas disponíveis com capacidade suficiente. A requisição foi adicionada à fila de espera.";
         }
 
         requisicao.alocarMesa(mesa);
-        mesa.ocupar(); 
+        mesa.ocupar();
         requisicaoRepository.save(requisicao);
-    
+
         return "Mesa alocada com sucesso.";
     }
-    
 
     public String desalocarMesaDeRequisicao(Long requisicaoId) {
         Requisicao requisicao = requisicaoRepository.findById(requisicaoId).orElse(null);
@@ -113,7 +114,7 @@ public class Restaurante {
         requisicao.setSaida(LocalDateTime.now());
         requisicao.getMesa().desocupar();
         requisicao.setMesa(null);
-        requisicao.setEncerrada(true); 
+        requisicao.setEncerrada(true);
         requisicaoRepository.save(requisicao);
 
         if (!filaEspera.isEmpty()) {
@@ -124,3 +125,4 @@ public class Restaurante {
         return "Mesa desalocada com sucesso.";
     }
 }
+

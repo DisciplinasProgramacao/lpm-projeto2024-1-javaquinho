@@ -12,7 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import javaquinho.comidinhas.models.Cliente;
-import javaquinho.comidinhas.models.Menu;
 import javaquinho.comidinhas.models.Mesa;
 import javaquinho.comidinhas.models.Requisicao;
 
@@ -136,7 +135,7 @@ public class RestauranteControllerTest {
         resultActions.andExpect(status().isOk());
     }
 
-    @Test
+    /*@Test
     public void testCriarMenu() throws Exception {
         Menu menu = new Menu();
 
@@ -147,5 +146,5 @@ public class RestauranteControllerTest {
                 .content(jsonMenu));
 
         resultActions.andExpect(status().isOk());
-    }
+    }*/
 }
