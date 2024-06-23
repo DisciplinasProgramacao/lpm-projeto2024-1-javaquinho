@@ -35,17 +35,34 @@ public class MenuController {
     @Autowired
     private ProdutoRepository repositorioProduto;
 
+    /**
+     * Retorna uma lista de todos os menus.
+     *
+     * @return lista de todos os menus
+     */
     @GetMapping("")
-    public List<Menu> getAllByRestauranteId() {
+    public List<Menu> getAll() {
         return repository.findAll();
     }
 
+    /**
+     * Retorna um menu específico pelo seu ID.
+     *
+     * @param id o ID do menu
+     * @return o menu solicitado, ou 404 se não encontrado
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Menu> getMenu(@PathVariable Long id) {
         Optional<Menu> menu = repository.findById(id);
         return menu.isPresent() ? ResponseEntity.ok(menu.get()) : ResponseEntity.notFound().build();
     }
 
+    /**
+     * Cria um novo menu aberto com um conjunto de produtos.
+     *
+     * @param produtos o conjunto de produtos para o menu
+     * @return mensagem de sucesso
+     */
     @PostMapping("/aberto")
     public ResponseEntity<String> criarMenuAberto(@RequestBody HashSet<Produto> produtos) {
         MenuAberto obj = new MenuAberto(produtos);
@@ -53,6 +70,12 @@ public class MenuController {
         return ResponseEntity.ok().body("Menu aberto criado com sucesso!");
     }
 
+    /**
+     * Cria um novo menu fechado com um conjunto de produtos.
+     *
+     * @param produtos o conjunto de produtos para o menu
+     * @return mensagem de sucesso ou erro se o limite de produtos for excedido
+     */
     @PostMapping("/fechado")
     public ResponseEntity<String> criarMenuFechado(@RequestBody HashSet<Produto> produtos) {
         try {
@@ -64,6 +87,13 @@ public class MenuController {
         }
     }
 
+    /**
+     * Adiciona um produto a um menu específico.
+     *
+     * @param menuId o ID do menu
+     * @param produto o produto a ser adicionado
+     * @return mensagem de sucesso ou erro se o limite de produtos for excedido ou o menu não for encontrado
+     */
     @PutMapping("/adicionarProduto")
     public ResponseEntity<String> adicionarProduto(@RequestParam Long menuId, @RequestBody Produto produto) {
         Optional<Menu> optionalMenu = repository.findById(menuId);
@@ -83,6 +113,13 @@ public class MenuController {
         }
     }
 
+    /**
+     * Adiciona uma lista de produtos a um menu específico.
+     *
+     * @param menuId o ID do menu
+     * @param produtos a lista de produtos a ser adicionada
+     * @return mensagem de sucesso ou erro se o limite de produtos for excedido ou o menu não for encontrado
+     */
     @PutMapping("/adicionarProduto/all")
     public ResponseEntity<String> adicionarProduto(@RequestParam Long menuId, @RequestBody List<Produto> produtos) {
         Menu menu = repository.findById(menuId).orElse(null);
