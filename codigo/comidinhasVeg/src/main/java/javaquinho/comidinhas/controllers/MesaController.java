@@ -15,13 +15,22 @@ public class MesaController {
     @Autowired
     private MesaRepository mesaRepository;
 
-    /*Get para mostrar todas as mesas do restaurante */
+    /**
+     * Retorna todas as mesas do restaurante.
+     *
+     * @return uma lista de objetos Mesa
+     */
     @GetMapping
     public List<Mesa> getAllMesas() {
         return mesaRepository.findAll();
     }
 
-    /*Get que mostra a mesa passando o id */
+    /**
+     * Retorna uma mesa específica com base no ID fornecido.
+     *
+     * @param id o ID da mesa a ser retornada
+     * @return um objeto ResponseEntity contendo a mesa solicitada ou um status 404 se não encontrada
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Mesa> getMesaById(@PathVariable int id) {
         return mesaRepository.findById(id)
@@ -29,7 +38,13 @@ public class MesaController {
             .orElse(ResponseEntity.notFound().build());
     }
 
-    /*Patch para ocupar uma mesa passando o id da mesa */
+    /**
+     * Atualiza o status de uma mesa para "ocupada" com base no ID fornecido.
+     *
+     * @param id o ID da mesa a ser atualizada
+     * @param mesa um objeto Mesa contendo os dados para a atualização
+     * @return um objeto ResponseEntity contendo a mesa atualizada ou um status 404 se não encontrada
+     */
     @PatchMapping("/ocupar/{id}")
     public ResponseEntity<Mesa> updateOcuparMesa(@PathVariable int id, @RequestBody Mesa mesa) {
         return mesaRepository.findById(id)
@@ -41,7 +56,13 @@ public class MesaController {
             .orElse(ResponseEntity.notFound().build());
     } 
 
-    /*Patch para desocupar uma mesa passando o id da mesa */
+    /**
+     * Atualiza o status de uma mesa para "desocupada" com base no ID fornecido.
+     *
+     * @param id o ID da mesa a ser atualizada
+     * @param mesa um objeto Mesa contendo os dados para a atualização
+     * @return um objeto ResponseEntity contendo a mesa atualizada ou um status 404 se não encontrada
+     */
     @PatchMapping("/desocupar/{id}")
     public ResponseEntity<Mesa> updateDesocuparMesa(@PathVariable int id, @RequestBody Mesa mesa) {
         return mesaRepository.findById(id)
@@ -53,14 +74,24 @@ public class MesaController {
             .orElse(ResponseEntity.notFound().build());
     } 
 
-    /*Post para criar uma mesa */
+    /**
+     * Cria uma nova mesa.
+     *
+     * @param mesa um objeto Mesa contendo os dados da nova mesa
+     * @return o objeto Mesa criado
+     */
     @PostMapping
     public Mesa createMesa(@RequestBody Mesa mesa){
         return mesaRepository.save(mesa);
     }
 
 
-    /*Post para criar uma lista de mesas */
+    /**
+     * Cria uma lista de novas mesas.
+     *
+     * @param mesas uma lista de objetos Mesa a serem criados
+     * @return um objeto ResponseEntity indicando sucesso ou falha na operação
+     */
     @PostMapping("/lista")
     public ResponseEntity<?> createMesas(@RequestBody List<Mesa> mesas) {
         try {
@@ -71,7 +102,12 @@ public class MesaController {
         }
     }
 
-    /*Rota para deletar uma mesa */
+    /**
+     * Deleta uma mesa com base no ID fornecido.
+     *
+     * @param id o ID da mesa a ser deletada
+     * @return um objeto ResponseEntity indicando sucesso ou um status 404 se não encontrada
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Mesa> deleteMesa(@PathVariable int id) {
         return mesaRepository.findById(id)
