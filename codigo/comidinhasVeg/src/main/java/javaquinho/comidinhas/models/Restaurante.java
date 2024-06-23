@@ -7,7 +7,6 @@ import java.util.Queue;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import javaquinho.comidinhas.repositories.ClienteRepository;
 import javaquinho.comidinhas.repositories.MesaRepository;
 import javaquinho.comidinhas.repositories.MenuRepository;
@@ -58,13 +57,13 @@ public class Restaurante {
         return menuRepository.save(menu);
     }
 
-    public Requisicao criarRequisicao(Requisicao requisicao) {
+    public String criarRequisicao(Requisicao requisicao) {
         if (requisicao.getCliente() == null || requisicao.getQuantPessoas() < 1) {
             throw new IllegalArgumentException("Cliente não pode ser nulo e a quantidade de pessoas deve ser pelo menos 1.");
         }
+
         requisicao = requisicaoRepository.save(requisicao);
-        alocarMesaParaRequisicao(requisicao.getId());
-        return requisicao;
+        return alocarMesaParaRequisicao(requisicao.getId());
     }
 
     public String alocarMesaParaRequisicao(Long requisicaoId) {
@@ -95,9 +94,7 @@ public class Restaurante {
         }
 
         requisicao.alocarMesa(mesa);
-        mesa.ocupar();
         requisicaoRepository.save(requisicao);
-
         return "Mesa alocada com sucesso.";
     }
 
@@ -125,4 +122,3 @@ public class Restaurante {
         return "Mesa desalocada com sucesso.";
     }
 }
-

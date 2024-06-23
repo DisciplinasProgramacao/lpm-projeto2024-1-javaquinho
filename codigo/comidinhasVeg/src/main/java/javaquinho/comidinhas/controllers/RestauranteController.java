@@ -44,7 +44,7 @@ public class RestauranteController {
     }
 
     @PostMapping("/{idCliente}/{quantPessoas}")
-    public ResponseEntity<Requisicao> criarRequisicao(
+    public ResponseEntity<String> criarRequisicao(
             @PathVariable Integer idCliente,
             @PathVariable Integer quantPessoas) {
 
@@ -56,17 +56,11 @@ public class RestauranteController {
         Requisicao requisicao = new Requisicao(cliente, quantPessoas);
 
         try {
-            Requisicao novaRequisicao = restaurante.criarRequisicao(requisicao);
-            return ResponseEntity.ok(novaRequisicao);
+            String resultadoAlocacao = restaurante.criarRequisicao(requisicao);
+            return ResponseEntity.ok(resultadoAlocacao);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body("Erro ao criar requisição: " + e.getMessage());
         }
-    }
-
-    @PutMapping("/alocar/{requisicaoId}")
-    public ResponseEntity<String> alocarMesaParaRequisicao(@PathVariable Long requisicaoId) {
-        String resultado = restaurante.alocarMesaParaRequisicao(requisicaoId);
-        return ResponseEntity.ok(resultado);        
     }
 
     @PutMapping("/desalocar/{requisicaoId}")
