@@ -1,7 +1,6 @@
 package javaquinho.comidinhas.controllers;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,11 +9,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import javaquinho.comidinhas.excecoes.LimiteProdutosException;
 import javaquinho.comidinhas.excecoes.NaoExisteMenuException;
@@ -129,15 +126,12 @@ public class RequisicaoController {
         return ResponseEntity.ok(requisicao);
     }
 
-    
-    @PutMapping("/adicionarProduto")
-    public ResponseEntity<Requisicao> adicionarProduto(@RequestBody Map<String, Object> payload) {
-    Long requisicaoId = ((Number) ((Map<String, Object>) payload.get("requisicao")).get("id")).longValue();
-    Long produtoId = ((Number) ((Map<String, Object>) payload.get("produto")).get("id")).longValue();
-    
-    Requisicao req = requisicaoRepository.findById(requisicaoId).orElse(null);
-    Produto prod = produtoRepository.findById(produtoId).orElse(null);
-    if (req != null && prod != null) {
+
+    @PutMapping("/adicionarProduto/{id}/{idProduto}")
+    public ResponseEntity<Requisicao> adicionarProduto(@PathVariable Long id, @PathVariable Long idProduto) {
+        Requisicao req = requisicaoRepository.findById(id).orElse(null);
+        Produto prod = produtoRepository.findById(idProduto).orElse(null);
+        if (req != null && prod != null) {
         Pedido pedido = req.getPedido();
         try {
             pedido.addProduto(prod);
@@ -149,36 +143,6 @@ public class RequisicaoController {
         return ResponseEntity.notFound().build();
     }
 }
-
-    // @PutMapping("/adicionarProduto")
-    // public ResponseEntity<Requisicao> adicionarProduto(@RequestParam Long requisicao, @RequestParam Long produto){
-    //     Requisicao req = requisicaoRepository.findById(requisicao).orElse(null);
-    //     Produto prod = produtoRepository.findById(produto).orElse(null);
-    //     if (req != null && prod != null) {
-    //         Pedido pedido = req.getPedido();
-
-    //         try {
-    //             pedido.addProduto(prod);
-    //             return ResponseEntity.ok(requisicaoRepository.save(req));
-    //         }
-    //         catch (LimiteProdutosException e){
-    //             return ResponseEntity.status(500).build();
-    //         }
-    //         catch (NaoExisteMenuException e){
-    //             return ResponseEntity.status(500).build();
-    //         }
-    //         catch (ProdutoNaoExisteNoMenuException e){
-    //             return ResponseEntity.status(500).build();
-    //         }
-    //     }
-    //     else {
-    //         return ResponseEntity.notFound().build();
-    //     }
-    // }
-
-    
-
-
 
 
 }
