@@ -7,7 +7,12 @@ import javaquinho.comidinhas.excecoes.ProdutoNaoExisteNoMenuException;
 @Entity
 public class PedidoAberto extends Pedido<MenuAberto> {
     public PedidoAberto(int qntPessoas){
-        super(qntPessoas);
+        this.setQntPessoas(qntPessoas);
+    }
+
+    public PedidoAberto(int qntPessoas, MenuAberto menu) throws MenuInvalidoException{
+        setQntPessoas(qntPessoas);
+        setMenu(menu);
     }
 
     public PedidoAberto(){}

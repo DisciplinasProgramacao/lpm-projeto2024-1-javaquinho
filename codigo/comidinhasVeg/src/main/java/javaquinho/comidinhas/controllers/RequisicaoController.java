@@ -115,8 +115,6 @@ public class RequisicaoController {
         
     }
 
-
-
     @PatchMapping("/alocar/{id}/{idMesa}")
     public ResponseEntity<Requisicao> alocarMesa(@PathVariable Long id, @PathVariable Integer idMesa) {
         Requisicao requisicao = requisicaoRepository.findById(id).orElse(null);
