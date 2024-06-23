@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import javaquinho.comidinhas.repositories.ClienteRepository;
 import javaquinho.comidinhas.repositories.MesaRepository;
+import javaquinho.comidinhas.repositories.ProdutoRepository;
 import javaquinho.comidinhas.repositories.MenuRepository;
 import javaquinho.comidinhas.repositories.RequisicaoRepository;
 
@@ -27,24 +28,26 @@ public class Restaurante {
     @Autowired
     private RequisicaoRepository requisicaoRepository;
 
+    @Autowired
+    private ProdutoRepository produtoRepository;
+
+
+    //A fila de espera
     private Queue<Requisicao> filaEspera = new LinkedList<>();
 
-    public Cliente criarCliente(Cliente cliente) {
-        return clienteRepository.save(cliente);
-    }
-
+    //para criar clientes
     public List<Cliente> criarClientes(List<Cliente> clientes) {
         return clienteRepository.saveAll(clientes);
     }
 
-    public Mesa criarMesa(Mesa mesa) {
-        long count = mesaRepository.count();
-        if (count >= 10) {
-            throw new IllegalStateException("Número máximo de mesas atingido.");
-        }
-        return mesaRepository.save(mesa);
+    //para criar produtos
+    public String criarProdutos(List<Produto> produtos) {
+        produtoRepository.saveAll(produtos);
+        return "Os produtos do restaurante foram iniciados";
     }
-
+    
+    
+    //para criar mesas
     public List<Mesa> criarMesas(List<Mesa> mesas) {
         long count = mesaRepository.count();
         if (count + mesas.size() > 10) {
@@ -53,10 +56,7 @@ public class Restaurante {
         return mesaRepository.saveAll(mesas);
     }
 
-    public Menu criarMenu(Menu menu) {
-        return menuRepository.save(menu);
-    }
-
+    //cria uma requisicao
     public String criarRequisicao(Requisicao requisicao) {
         if (requisicao.getCliente() == null || requisicao.getQuantPessoas() < 1) {
             throw new IllegalArgumentException("Cliente não pode ser nulo e a quantidade de pessoas deve ser pelo menos 1.");
@@ -66,6 +66,7 @@ public class Restaurante {
         return alocarMesaParaRequisicao(requisicao.getId());
     }
 
+    //aloca a mesa para uma requisicao, iniciando-a
     public String alocarMesaParaRequisicao(Long requisicaoId) {
         Requisicao requisicao = requisicaoRepository.findById(requisicaoId).orElse(null);
         if (requisicao == null) {
@@ -98,6 +99,7 @@ public class Restaurante {
         return "Mesa alocada com sucesso.";
     }
 
+    //finaliza uma requisicao, desalocando a mesa
     public String desalocarMesaDeRequisicao(Long requisicaoId) {
         Requisicao requisicao = requisicaoRepository.findById(requisicaoId).orElse(null);
         if (requisicao == null) {

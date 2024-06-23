@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import javaquinho.comidinhas.models.Cliente;
 import javaquinho.comidinhas.models.Mesa;
 import javaquinho.comidinhas.models.Menu;
+import javaquinho.comidinhas.models.Produto;
 import javaquinho.comidinhas.models.Restaurante;
 import javaquinho.comidinhas.repositories.ClienteRepository;
 import javaquinho.comidinhas.models.Requisicao;
@@ -68,4 +69,15 @@ public class RestauranteController {
         String resultado = restaurante.desalocarMesaDeRequisicao(requisicaoId);
         return ResponseEntity.ok(resultado);
     }
+
+    @PostMapping("/produtos")
+    public ResponseEntity<String> criarProdutos(@RequestBody List<Produto> produtos) {
+        try {
+            String mensagem = restaurante.criarProdutos(produtos);
+            return ResponseEntity.ok(mensagem);
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body("Erro ao iniciar produtos: " + e.getMessage());
+        }
+    }
+    
 }
