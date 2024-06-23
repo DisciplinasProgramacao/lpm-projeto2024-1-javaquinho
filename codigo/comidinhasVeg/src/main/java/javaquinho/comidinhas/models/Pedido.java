@@ -44,17 +44,15 @@ public abstract class Pedido<T extends Menu> {
     @Column(name = "qntPessoas", nullable = false)
     protected int qntPessoas;
 
-    public Pedido(){}
-
-    public Pedido(int qntPessoas){
-        this.qntPessoas = qntPessoas;
-    }
-
     public Menu getMenu(){
         return menu;
     }
 
     public abstract void setMenu(T menu) throws MenuInvalidoException;
+
+    public void setQntPessoas(int qnt){
+        this.qntPessoas = qnt;
+    }
 
     public int getQntPessoas(){
         return this.qntPessoas;

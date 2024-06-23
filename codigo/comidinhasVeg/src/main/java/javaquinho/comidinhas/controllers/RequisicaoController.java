@@ -48,11 +48,13 @@ public class RequisicaoController {
     @Autowired
     private PedidoRepository pedidoRepository;
 
+    /*Get todas as requisições*/
     @GetMapping
     public List<Requisicao> getAllRequisicoes() {
         return requisicaoRepository.findAll();
     }
 
+    /*Get requisição pelo id dela*/
     @GetMapping("/{id}")
     public ResponseEntity<Requisicao> getRequisicaoById(@PathVariable Long id) {
         Optional<Requisicao> requisicao = requisicaoRepository.findById(id);
@@ -64,7 +66,7 @@ public class RequisicaoController {
     }
 
     
-
+/*Encerrar requisição pelo id dela*/
     @PutMapping("/{id}/encerrar")
     public ResponseEntity<Requisicao> encerrarRequisicao(@PathVariable Long id) {
         Requisicao requisicao = requisicaoRepository.findById(id).orElse(null);
@@ -77,7 +79,7 @@ public class RequisicaoController {
     }
 
     
-
+/*Criar requisição passando o id do cliente e a quantidade de pessoas */
     @PostMapping("/{idCliente}/{quantPessoas}")
     public Requisicao createRequisicao(@PathVariable Integer idCliente, @PathVariable Integer quantPessoas) {
         Cliente cliente = clienteRepository.findById(idCliente).orElse(null);
@@ -85,7 +87,7 @@ public class RequisicaoController {
         return requisicaoRepository.save(req);   
     }
 
-    /*patch que linka um pedido a requisição */
+    /*Put que linka e cria um pedido a requisição */
     @PutMapping("/adicionar-pedido-aberto/{id}/{tipoPedido}")
     public ResponseEntity<String> adicionarPedidoAberto(@PathVariable Long id, @PathVariable String tipoPedido){
         Requisicao requisicao = requisicaoRepository.findById(id).orElse(null);
@@ -115,8 +117,7 @@ public class RequisicaoController {
         
     }
 
-
-
+    /*Patch que aloca uma mesa para a requisição passando o id da requisição e o id da mesa.*/
     @PatchMapping("/alocar/{id}/{idMesa}")
     public ResponseEntity<Requisicao> alocarMesa(@PathVariable Long id, @PathVariable Integer idMesa) {
         Requisicao requisicao = requisicaoRepository.findById(id).orElse(null);
@@ -127,6 +128,7 @@ public class RequisicaoController {
     }
 
 
+    /*Put que adiciona um produto a um pedido de uma requisição passando o id da requisição e o id do produto.*/
     @PutMapping("/adicionarProduto/{id}/{idProduto}")
     public ResponseEntity<Requisicao> adicionarProduto(@PathVariable Long id, @PathVariable Long idProduto) {
         Requisicao req = requisicaoRepository.findById(id).orElse(null);
