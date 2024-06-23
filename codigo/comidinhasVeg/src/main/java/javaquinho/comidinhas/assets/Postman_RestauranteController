@@ -9,63 +9,25 @@
 	},
 	"item": [
 		{
-			"name": "Criar Cliente",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n  \"nome\": \"Eduardo\",\n  \"telefone\": \"11884554323\",\n  \"cpf\": \"12332315401\"\n}"
-				},
-				"url": "http://localhost:8080/restaurante/cliente"
-			},
-			"response": []
-		},
-		{
-			"name": "Criar Clientes em Lote",
+			"name": "Criar Clientes",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "[\r\n  {\r\n  \"nome\": \"Samira\",\r\n  \"telefone\": \"11884557453\",\r\n  \"cpf\": \"32391315401\"\r\n  },\r\n  {\r\n  \"nome\": \"Leandra\",\r\n  \"telefone\": \"21880084323\",\r\n  \"cpf\": \"92312315401\"\r\n  }\r\n]",
+					"raw": "[\r\n  {\r\n  \"nome\": \"Samira\",\r\n  \"telefone\": \"11884557453\",\r\n  \"cpf\": \"32391315401\"\r\n  },\r\n  {\r\n  \"nome\": \"Leandra\",\r\n  \"telefone\": \"21880084323\",\r\n  \"cpf\": \"92312315401\"\r\n  },\r\n    {\r\n  \"nome\": \"João\",\r\n  \"telefone\": \"31990616109\",\r\n  \"cpf\": \"52410528600\"\r\n  }\r\n]",
 					"options": {
 						"raw": {
 							"language": "json"
 						}
 					}
 				},
-				"url": "http://localhost:8080/restaurante/clientes"
+				"url": "{{host}}/restaurante/clientes"
 			},
 			"response": []
 		},
 		{
-			"name": "Criar Mesa",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "\n  {\n    \"capacidade\": 4\n  }"
-				},
-				"url": "http://localhost:8080/restaurante/mesa"
-			},
-			"response": []
-		},
-		{
-			"name": "Criar Mesas em Lote",
+			"name": "Criar Mesas",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -78,26 +40,7 @@
 						}
 					}
 				},
-				"url": "http://localhost:8080/restaurante/mesas"
-			},
-			"response": []
-		},
-		{
-			"name": "Criar Menu",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n  \"produtos\": []\n}\n"
-				},
-				"url": "http://localhost:8080/restaurante/menus"
+				"url": "{{host}}/restaurante/mesas"
 			},
 			"response": []
 		},
@@ -115,22 +58,7 @@
 						}
 					}
 				},
-				"url": "http://localhost:8080/restaurante/1/8"
-			},
-			"response": []
-		},
-		{
-			"name": "Alocar Mesa",
-			"request": {
-				"method": "PUT",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"url": "http://localhost:8080/restaurante/alocar/1"
+				"url": "{{host}}/restaurante/3/8"
 			},
 			"response": []
 		},
@@ -145,7 +73,102 @@
 						"type": "text"
 					}
 				],
-				"url": "http://localhost:8080/restaurante/desalocar/1"
+				"url": "{{host}}/restaurante/desalocar/2"
+			},
+			"response": []
+		},
+		{
+			"name": "/produtos/all",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n    {\r\n        \"nome\": \"Falafel Assado\",\r\n        \"preco\": 20.0\r\n    },\r\n    {\r\n        \"nome\": \"Salada Primavera com Macarrão Konjac\",\r\n        \"preco\": 25.0\r\n    },\r\n    {\r\n        \"nome\": \"Escondidinho de Inhame\",\r\n        \"preco\": 18.0\r\n    },\r\n    {\r\n        \"nome\": \"Strogonoff de Cogumelos\",\r\n        \"preco\": 35.0\r\n    },\r\n    {\r\n        \"nome\": \"Caçarola de legumes\",\r\n        \"preco\": 22.0\r\n    },\r\n    {\r\n        \"nome\": \"Água\",\r\n        \"preco\": 3.0\r\n    },\r\n    {\r\n        \"nome\": \"Copo de Suco\",\r\n        \"preco\": 7.0\r\n    },\r\n    {\r\n        \"nome\": \"Refrigerante orgânico\",\r\n        \"preco\": 7.0\r\n    },\r\n    {\r\n        \"nome\": \"Cerveja vegana\",\r\n        \"preco\": 9.0\r\n    },\r\n    {\r\n        \"nome\": \"Taça de vinho vegano\",\r\n        \"preco\": 18.0\r\n    }\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/restaurante/produtos"
+			},
+			"response": []
+		},
+		{
+			"name": "/menus/aberto",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n        {\"id\" : 1},\r\n        {\"id\": 2},\r\n        {\"id\" : 3}\r\n]\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/restaurante/menu/aberto"
+			},
+			"response": []
+		},
+		{
+			"name": "/menus/fechado",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n        {\"id\" : 1},\r\n        {\"id\": 2}\r\n]\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/restaurante/menu/fechado"
+			},
+			"response": []
+		},
+		{
+			"name": "/requisicoes/atribuir-menu/{id}/{idMenu}",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": "{{host}}/restaurante/atribuir-menu/3/1"
+			},
+			"response": []
+		},
+		{
+			"name": "/pedidos/adicionar-produto/{id}",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/restaurante/adicionar-produto/2/2",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"restaurante",
+						"adicionar-produto",
+						"2",
+						"2"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "1",
+							"disabled": true
+						},
+						{
+							"key": "idProduto",
+							"value": "1",
+							"disabled": true
+						}
+					]
+				}
 			},
 			"response": []
 		}
