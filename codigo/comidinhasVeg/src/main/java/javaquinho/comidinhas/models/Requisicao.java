@@ -118,10 +118,7 @@ public class Requisicao {
      * @param mesa Mesa a ser desocupada.
      * @throws IllegalStateException se a mesa for nula.
      */
-    public void encerrar(Mesa mesa) {
-        if (mesa == null) {
-            throw new IllegalStateException("Não é possível encerrar uma requisição sem uma mesa alocada.");
-        }
+    public void encerrar() {
         saida = LocalDateTime.now();
         mesa.desocupar();
         encerrada = true;
