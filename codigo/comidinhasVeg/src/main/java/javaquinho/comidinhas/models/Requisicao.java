@@ -2,16 +2,12 @@ package javaquinho.comidinhas.models;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -20,11 +16,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * A entidade Requisicao representa um pedido de um cliente em um restaurante,
- * incluindo detalhes como mesa, quantidade de pessoas, horários de entrada e saída,
- * estado de atendimento e encerramento, e o pedido associado.
- */
 @Entity
 @Table(name = Requisicao.TABLE_NAME)
 @AllArgsConstructor
@@ -34,26 +25,21 @@ import lombok.Setter;
 @EqualsAndHashCode
 public class Requisicao {
 
-    // Nome da tabela no banco de dados
     public static final String TABLE_NAME = "requisicao";
 
-    // Identificador único da requisição
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", unique = true, nullable = false)
     private Long id;
 
-    // Cliente associado à requisição
     @OneToOne
     @JoinColumn(name = "cliente", nullable = false)
     private Cliente cliente;
 
-    // Mesa associada à requisição
     @OneToOne
     @JoinColumn(name = "mesa", nullable = true)
     private Mesa mesa;
 
-    // Quantidade de pessoas na requisição
     @Column(name = "quantPessoas", nullable = false)
     private int quantPessoas;
 
@@ -63,34 +49,14 @@ public class Requisicao {
     @Column(name = "saida", columnDefinition = "DATETIME")
     private LocalDateTime saida;
 
-    // Indica se a requisição foi atendida
-    @Column(name = "atendida", nullable = false)
-    private Boolean atendida;
-
-    // Indica se a requisição foi encerrada
     @Column(name = "encerrada", nullable = false)
-    private Boolean encerrada;
+    private boolean encerrada;
 
-    // Pedido associado à requisição
     @OneToOne
     @JoinColumn(name = "pedido", nullable = true)
     private Pedido pedido;
 
-    // Restaurante associado à requisição
-    @ManyToOne
-    @JoinColumn(name = "restaurante_id")
-    @JsonBackReference
-    private Restaurante restaurante;
-
-    /**
-     * Construtor que inicializa uma requisição com um cliente, quantidade de pessoas e restaurante.
-     * 
-     * @param cliente Cliente da requisição.
-     * @param quantPessoas Quantidade de pessoas na requisição.
-     * @param r Restaurante associado.
-     * @throws IllegalArgumentException se o cliente for nulo ou a quantidade de pessoas for menor que 1.
-     */
-    public Requisicao(Cliente cliente, int quantPessoas, Restaurante r) {
+    public Requisicao(Cliente cliente, int quantPessoas) {
         if (cliente == null) {
             throw new IllegalArgumentException("Cliente não pode ser nulo");
         }
@@ -102,7 +68,6 @@ public class Requisicao {
         this.entrada = null;
         this.saida = null;
         this.mesa = null;
-        this.atendida = false;
         this.encerrada = false;
         // this.pedido = new Pedido(); 
     }
@@ -111,96 +76,51 @@ public class Requisicao {
         this.cliente = cliente;
         this.quantPessoas = quantPessoas;
     }
-
-    /**
-     * Método para encerrar a requisição, liberando a mesa associada.
-     * 
-     * @param mesa Mesa a ser desocupada.
-     * @throws IllegalStateException se a mesa for nula.
-     */
-    public void encerrar(Mesa mesa) {
+  
+    public Mesa encerrar() {
         if (mesa == null) {
             throw new IllegalStateException("Não é possível encerrar uma requisição sem uma mesa alocada.");
         }
         saida = LocalDateTime.now();
         mesa.desocupar();
         encerrada = true;
+        return mesa;
     }
 
-    /**
-     * Método para alocar uma mesa à requisição e marcar o horário de entrada.
-     * 
-     * @param mesa Mesa a ser alocada.
-     */
     public void alocarMesa(Mesa mesa) {
-        this.mesa = mesa;
-        this.entrada = LocalDateTime.now();
-        this.atendida = true;
-        this.mesa.ocupar();
+        if (mesa.estahLiberada(quantPessoas)) {
+            this.mesa = mesa;
+            entrada = LocalDateTime.now();
+            this.mesa.ocupar();
+        }
     }
 
-    /**
-     * Verifica se a requisição está encerrada.
-     * 
-     * @return true se a requisição estiver encerrada, false caso contrário.
-     */
     public boolean estahEncerrada() {
         return encerrada;
     }
 
-    /**
-     * Verifica se a requisição é de uma determinada mesa.
-     * 
-     * @param idMesa ID da mesa.
-     * @return true se a requisição for da mesa especificada, false caso contrário.
-     */
-    public boolean ehDaMesa(Long idMesa) {
+    public boolean ehDaMesa(int idMesa) {
         return idMesa == mesa.getIdMesa();
     }
 
-    /**
-     * Retorna a quantidade de pessoas na requisição.
-     * 
-     * @return Quantidade de pessoas.
-     */
     public int quantPessoas() {
         return quantPessoas;
     }
 
-    /**
-     * Exibe o total da conta do pedido associado.
-     * 
-     * @return Valor total do pedido.
-     */
     public double exibirConta() {
         return pedido.getSomarTotal();
     }
 
-    /**
-     * Exibe o valor da conta dividido pelo número de pessoas.
-     * 
-     * @return Valor por pessoa.
-     */
     public double exibirValorPorPessoa() {
         return pedido.getSomarTotal() / quantPessoas;
     }
 
-    /**
-     * Fecha o pedido associado à requisição.
-     */
     public void fecharPedido() {
         if (pedido != null) {
             pedido = null;
         }
     }
 
-    /**
-     * Adiciona um produto ao pedido associado à requisição.
-     * 
-     * @param produto Produto a ser adicionado.
-     * @throws IllegalStateException se a requisição estiver encerrada.
-     * @throws RuntimeException se ocorrer um erro ao adicionar o produto.
-     */
     public void adicionarProduto(Produto produto) {
         if (this.encerrada) {
             throw new IllegalStateException("Não é possível adicionar produtos a uma requisição finalizada.");
@@ -215,12 +135,6 @@ public class Requisicao {
         }
     }
 
-    /**
-     * Remove um produto do pedido associado à requisição.
-     * 
-     * @param produto Produto a ser removido.
-     * @throws IllegalStateException se a requisição estiver encerrada.
-     */
     public void removerProduto(Produto produto) {
         if (this.encerrada) {
             throw new IllegalStateException("Não é possível remover produtos de uma requisição finalizada.");
@@ -230,12 +144,6 @@ public class Requisicao {
         }
     }
 
-    /**
-     * Retorna uma representação em string da requisição, incluindo informações do cliente,
-     * mesa, horários de entrada e saída, e produtos no pedido.
-     * 
-     * @return String representando a requisição.
-     */
     @Override
     public String toString() {
         DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
