@@ -126,15 +126,6 @@ public abstract class Pedido<T extends Menu> {
     }
 
     /**
-     * Define o ID do pedido.
-     *
-     * @param id ID do pedido
-     */
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    /**
      * Retorna a lista de produtos do pedido.
      *
      * @return lista de produtos

@@ -8,6 +8,8 @@ import javaquinho.comidinhas.excecoes.MenuInvalidoException;
 import javaquinho.comidinhas.excecoes.NaoExisteMenuException;
 import javaquinho.comidinhas.excecoes.ProdutoNaoExisteNoMenuException;
 import javaquinho.comidinhas.models.Menu;
+import javaquinho.comidinhas.models.MenuAberto;
+import javaquinho.comidinhas.models.MenuFechado;
 import javaquinho.comidinhas.models.Pedido;
 import javaquinho.comidinhas.models.PedidoAberto;
 import javaquinho.comidinhas.models.PedidoFechado;
@@ -20,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/pedidos")
@@ -59,6 +63,44 @@ public class PedidoController {
         PedidoFechado obj = new PedidoFechado(qntPessoas);
         pedidoRepository.save(obj);
         return ResponseEntity.ok().body("Pedido fechado criado com sucesso!");
+    }
+
+    /**
+     * Cria um novo pedido com menu atribuido.
+     *
+     * @param idMenu     id do menu que será associado ao pedido
+     * @param qntPessoas quantidade de pessoas no pedido
+     * @return mensagem de sucesso ou erro
+     */
+    @PostMapping("/com-menu")
+    public ResponseEntity<String> postMethodName(@RequestParam Long idMenu, @RequestParam int qntPessoas) {
+        try {
+            Menu menu = menuRepository.findById(idMenu).orElse(null);
+            Pedido pedido;
+            if (menu != null){
+                switch(menu.getClassName()){
+                    case "MenuAberto":
+                        pedido = new PedidoAberto(qntPessoas, (MenuAberto) menu);
+                        break;
+                    case "MenuFechado": 
+                        pedido = new PedidoFechado(qntPessoas, (MenuFechado) menu);
+                        break;
+                    default:
+                        return ResponseEntity.badRequest().body("Tipo de menu inválido");
+                    }
+
+                    pedidoRepository.save(pedido);
+                    return ResponseEntity.ok().body("Pedido criado com sucesso!");
+            }
+
+            return ResponseEntity.notFound().build();
+
+        } catch(MenuInvalidoException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }catch(Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+        
     }
 
     /**
