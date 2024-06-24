@@ -9,7 +9,7 @@
 	},
 	"item": [
 		{
-			"name": "Criar Clientes",
+			"name": "/restaurante/clientes",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -27,7 +27,7 @@
 			"response": []
 		},
 		{
-			"name": "Criar Mesas",
+			"name": "/restaurante/mesas",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -41,39 +41,6 @@
 					}
 				},
 				"url": "{{host}}/restaurante/mesas"
-			},
-			"response": []
-		},
-		{
-			"name": "Criar Requisicao",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": "{{host}}/restaurante/3/8"
-			},
-			"response": []
-		},
-		{
-			"name": "Desalocar Mesa",
-			"request": {
-				"method": "PUT",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"url": "{{host}}/restaurante/desalocar/2"
 			},
 			"response": []
 		},
@@ -132,16 +99,49 @@
 			"response": []
 		},
 		{
-			"name": "/requisicoes/atribuir-menu/{id}/{idMenu}",
+			"name": "/restaurante/{idCliente}/{quantPessoas}",
 			"request": {
 				"method": "POST",
 				"header": [],
-				"url": "{{host}}/restaurante/atribuir-menu/3/1"
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/restaurante/3/8"
 			},
 			"response": []
 		},
 		{
-			"name": "/pedidos/adicionar-produto/{id}",
+			"name": "/restaurante/desalocar/{idReq}",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": "{{host}}/restaurante/desalocar/2"
+			},
+			"response": []
+		},
+		{
+			"name": "/requisicoes/atribuir-menu/{idReq}/{idMenu}",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": "{{host}}/restaurante/atribuir-menu/2/2"
+			},
+			"response": []
+		},
+		{
+			"name": "/pedidos/adicionar-produto/{idReq}/{idProduto}",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -159,12 +159,12 @@
 					"query": [
 						{
 							"key": "id",
-							"value": "1",
+							"value": "2",
 							"disabled": true
 						},
 						{
 							"key": "idProduto",
-							"value": "1",
+							"value": "2",
 							"disabled": true
 						}
 					]

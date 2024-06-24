@@ -17,9 +17,8 @@ import javaquinho.comidinhas.repositories.MenuRepository;
 import javaquinho.comidinhas.repositories.RequisicaoRepository;
 
 /**
- * Serviço que gerencia operações relacionadas ao restaurante, como criação de
- * clientes,
- * mesas, produtos, requisições e menus.
+ * Serviço que gerencia operações relacionadas ao restaurante. Criação de
+ * clientes, mesas, produtos, requisições e menus.
  */
 @Service
 public class Restaurante {
@@ -42,7 +41,7 @@ public class Restaurante {
     private Queue<Requisicao> filaEspera = new LinkedList<>();
 
     /**
-     * Cria novos clientes no sistema.
+     * Cria novos clientes no sistema através de uma lista de objetos.
      * 
      * @param clientes Lista de clientes a serem criados
      * @return Lista de clientes criados
@@ -52,7 +51,8 @@ public class Restaurante {
     }
 
     /**
-     * Cria novas mesas no restaurante, verificando o limite de 10 mesas.
+     * Cria novas mesas no restaurante, contabilizando as que já existem + as que
+     * estão sendo criadas.
      * 
      * @param mesas Lista de mesas a serem criadas
      * @return Lista de mesas criadas
@@ -75,38 +75,6 @@ public class Restaurante {
     public String criarProdutos(List<Produto> produtos) {
         produtoRepository.saveAll(produtos);
         return "Os produtos do restaurante foram iniciados";
-    }
-
-    /**
-     * Cria uma requisição para um cliente, tentando alocar uma mesa
-     * automaticamente.
-     * Se não houver mesas disponíveis, adiciona a requisição à fila de espera.
-     * 
-     * @param requisicao Requisição a ser criada
-     * @return Mensagem indicando o resultado da criação da requisição
-     * @throws IllegalArgumentException Se o cliente for nulo ou a quantidade de
-     *                                  pessoas for menor que 1
-     */
-    public String criarRequisicao(Requisicao requisicao) {
-        if (requisicao.getCliente() == null || requisicao.getQuantPessoas() < 1) {
-            throw new IllegalArgumentException(
-                    "Cliente não pode ser nulo e a quantidade de pessoas deve ser pelo menos 1.");
-        }
-
-        requisicao = requisicaoRepository.save(requisicao);
-
-        String resultadoAlocacao = alocarMesaParaRequisicao(requisicao.getId());
-
-        if (resultadoAlocacao.startsWith("Mesa alocada")) {
-            requisicao.setEntrada(LocalDateTime.now());
-            requisicaoRepository.save(requisicao);
-        }
-
-        if (!resultadoAlocacao.startsWith("Mesa alocada")) {
-            filaEspera.add(requisicao);
-        }
-
-        return resultadoAlocacao;
     }
 
     /**
@@ -147,42 +115,72 @@ public class Restaurante {
         return "Mesa alocada para a requisição com sucesso!";
     }
 
-/**
- * Finaliza uma requisição, desalocando a mesa e, se houver, realocando a
- * próxima da fila de espera.
- * Calcula o total do pedido ao finalizar.
- * 
- * @param requisicaoId ID da requisição a ser finalizada
- * @return Mensagem indicando o resultado da finalização da requisição e o total
- *         do pedido
- */
-public String desalocarMesaDeRequisicao(Long requisicaoId) {
-    Requisicao requisicao = requisicaoRepository.findById(requisicaoId).orElse(null);
-    if (requisicao == null) {
-        return "Requisição não encontrada.";
-    }
-
-    if (requisicao.getMesa() == null) {
-        return "Nenhuma mesa está alocada a esta requisição.";
-    }
-
-    try {
-        requisicao.encerrar();
-        requisicaoRepository.save(requisicao);
-
-        if (!filaEspera.isEmpty()) {
-            Requisicao proximaRequisicao = filaEspera.poll();
-            alocarMesaParaRequisicao(proximaRequisicao.getId());
+    /**
+     * Cria uma requisição para um cliente, tentando alocá-lo numa mesa
+     * automaticamente.
+     * Se não houver mesas disponíveis, adiciona a requisição à fila de espera.
+     * 
+     * @param requisicao Requisição a ser criada
+     * @return Mensagem indicando o resultado da criação da requisição
+     * @throws IllegalArgumentException Se o cliente for nulo ou a quantidade de
+     *                                  pessoas for menor que 1
+     */
+    public String criarRequisicao(Requisicao requisicao) {
+        if (requisicao.getCliente() == null || requisicao.getQuantPessoas() < 1) {
+            throw new IllegalArgumentException(
+                    "Cliente não pode ser nulo e a quantidade de pessoas deve ser pelo menos 1.");
         }
 
-        double totalPedido = requisicao.getPedido().getSomarTotal();
-        return "Mesa desalocada. Requisição finalizada com sucesso!\nTotal do Pedido: " + totalPedido;
-    } catch (IllegalStateException e) {
-        return e.getMessage();
-    }
-}
+        requisicao = requisicaoRepository.save(requisicao);
 
-    
+        String resultadoAlocacao = alocarMesaParaRequisicao(requisicao.getId());
+
+        if (resultadoAlocacao.startsWith("Mesa alocada")) {
+            requisicao.setEntrada(LocalDateTime.now());
+            requisicaoRepository.save(requisicao);
+        }
+
+        if (!resultadoAlocacao.startsWith("Mesa alocada")) {
+            filaEspera.add(requisicao);
+        }
+
+        return resultadoAlocacao;
+    }
+
+    /**
+     * Finaliza uma requisição, desalocando a mesa e, se houver, realocando a
+     * próxima da fila de espera.
+     * Calcula o total do pedido ao finalizar.
+     * 
+     * @param requisicaoId ID da requisição a ser finalizada
+     * @return Mensagem indicando o resultado da finalização da requisição e o total
+     *         do pedido
+     */
+    public String desalocarMesaDeRequisicao(Long requisicaoId) {
+        Requisicao requisicao = requisicaoRepository.findById(requisicaoId).orElse(null);
+        if (requisicao == null) {
+            return "Requisição não encontrada.";
+        }
+
+        if (requisicao.getMesa() == null) {
+            return "Nenhuma mesa está alocada a esta requisição.";
+        }
+
+        try {
+            requisicao.encerrar();
+            requisicaoRepository.save(requisicao);
+
+            if (!filaEspera.isEmpty()) {
+                Requisicao proximaRequisicao = filaEspera.poll();
+                alocarMesaParaRequisicao(proximaRequisicao.getId());
+            }
+
+            double totalPedido = requisicao.getPedido().getSomarTotal();
+            return "Mesa desalocada. Requisição finalizada com sucesso!\nTotal do Pedido: " + totalPedido;
+        } catch (IllegalStateException e) {
+            return e.getMessage();
+        }
+    }
 
     /**
      * Cria um menu aberto com os produtos especificados.
