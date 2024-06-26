@@ -1,150 +1,181 @@
-// package javaquinho.comidinhas;
+package javaquinho.comidinhas;
 
-// import com.fasterxml.jackson.databind.ObjectMapper;
-// import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
-// import org.junit.jupiter.api.Order;
-// import org.junit.jupiter.api.Test;
-// import org.junit.jupiter.api.TestMethodOrder;
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-// import org.springframework.boot.test.context.SpringBootTest;
-// import org.springframework.http.MediaType;
-// import org.springframework.test.web.servlet.MockMvc;
-// import org.springframework.test.web.servlet.ResultActions;
-// import javaquinho.comidinhas.models.Cliente;
-// import javaquinho.comidinhas.models.Mesa;
-// import javaquinho.comidinhas.models.Requisicao;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import javaquinho.comidinhas.controllers.RestauranteController;
+import javaquinho.comidinhas.excecoes.LimiteProdutosException;
+import javaquinho.comidinhas.models.*;
+import javaquinho.comidinhas.repositories.ClienteRepository;
+import javaquinho.comidinhas.repositories.MesaRepository;
+import javaquinho.comidinhas.repositories.ProdutoRepository;
+import javaquinho.comidinhas.repositories.RequisicaoRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
-// import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-// import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-// import java.util.Arrays;
-// import java.util.List;
+import static org.mockito.Mockito.doReturn;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-// @SpringBootTest
-// @AutoConfigureMockMvc
-// @TestMethodOrder(OrderAnnotation.class)
-// public class RestauranteControllerTest {
+@SpringBootTest
+@AutoConfigureMockMvc
+@Transactional
+public class RestauranteControllerTest {
 
-//     @Autowired
-//     private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-//     @Autowired
-//     private ObjectMapper objectMapper;
+    @MockBean
+    private RestauranteController restauranteController;
 
-//     private static Integer idClienteEduardo;
-//     private static Long idRequisicao;
+    @MockBean
+    private ClienteRepository clienteRepository;
 
-//     @Test
-//     @Order(1)
-//     public void testCriarClienteEduardo() throws Exception {
-//         Cliente cliente = new Cliente();
-//         cliente.setNome("Eduardo");
-//         cliente.setTelefone("11884554323");
-//         cliente.setCpf("12332315401");
+    @MockBean
+    private MesaRepository mesaRepository;
 
-//         String jsonCliente = objectMapper.writeValueAsString(cliente);
+    @MockBean
+    private ProdutoRepository produtoRepository;
 
-//         ResultActions resultActions = mockMvc.perform(post("/restaurante/cliente")
-//                 .contentType(MediaType.APPLICATION_JSON)
-//                 .content(jsonCliente));
+    @MockBean
+    private RequisicaoRepository requisicaoRepository;
 
-//         resultActions.andExpect(status().isOk());
+    @Autowired
+    private ObjectMapper objectMapper;
 
-//         String content = resultActions.andReturn().getResponse().getContentAsString();
-//         Cliente clienteCriado = objectMapper.readValue(content, Cliente.class);
-//         idClienteEduardo = clienteCriado.getId();
-//     }
+    private Cliente cliente;
+    private Mesa mesa1, mesa2, mesa3;
+    private Produto produto1, produto2, produto3;
+    private Menu menuAberto, menuFechado;
+    private Requisicao requisicao;
 
-//     @Test
-//     @Order(2)
-//     public void testCriarRequisicaoParaEduardo() throws Exception {
-//         // Cria a requisição usando o cliente Eduardo
-//         ResultActions resultActions = mockMvc.perform(post("/restaurante/" + idClienteEduardo + "/8"));
+    @BeforeEach
+    public void setup() {
+        cliente = new Cliente(null, "Leandra", "21880084323", "92312315401");
 
-//         resultActions.andExpect(status().isOk());
+        mesa1 = new Mesa(4);
+        mesa2 = new Mesa(6);
+        mesa3 = new Mesa(8);
 
-//         // Obtém o ID da requisição criada
-//         String content = resultActions.andReturn().getResponse().getContentAsString();
-//         Requisicao requisicao = objectMapper.readValue(content, Requisicao.class);
-//         idRequisicao = requisicao.getId();
-//     }
+        produto1 = new Produto();
+        produto1.setNome("Água");
+        produto1.setPreco(3.0);
+        produto2 = new Produto();
+        produto2.setNome("Strogonoff de Cogumelos");
+        produto2.setPreco(35.0);
+        produto3 = new Produto();
+        produto3.setNome("Escondidinho de Inhame");
+        produto3.setPreco(18.0);
 
-//     @Test
-//     @Order(3)
-//     public void testAlocarMesaParaRequisicao() throws Exception {
-//         // Alocar a mesa para a requisição criada
-//         ResultActions resultActions = mockMvc.perform(put("/restaurante/alocar/" + idRequisicao));
+        menuAberto = new MenuAberto(new HashSet<>(Arrays.asList(produto1, produto2, produto3)));
+        
+        try {
+            menuFechado = new MenuFechado(new HashSet<>(Arrays.asList(produto1, produto2)));
+        } catch (LimiteProdutosException e) {
+            e.printStackTrace();
+        }
 
-//         resultActions.andExpect(status().isOk());
-//     }
+        requisicao = new Requisicao(cliente, 4);
+    }
 
-//     @Test
-//     @Order(4)
-//     public void testDesalocarMesaDeRequisicao() throws Exception {
-//         // Desalocar a mesa da requisição
-//         ResultActions resultActions = mockMvc.perform(put("/restaurante/desalocar/" + idRequisicao));
+    @Test
+    public void testCriarClientes() throws Exception {
+        List<Cliente> clientes = Arrays.asList(cliente);
+    
+        // Configura o mock para retornar os clientes ao chamar saveAll
+        doReturn(clientes).when(clienteRepository).saveAll(clientes);
+    
+        // Simula a requisição HTTP POST para /restaurante/clientes
+        mockMvc.perform(post("/restaurante/clientes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(clientes)))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Clientes criados com sucesso."));
+    }
 
-//         resultActions.andExpect(status().isOk());
-//     }
+    @Test
+    public void testCriarMesas() throws Exception {
+        List<Mesa> mesas = Arrays.asList(mesa1, mesa2, mesa3);
 
-//     @Test
-//     public void testCriarClientesEmLote() throws Exception {
-//         List<Cliente> clientes = Arrays.asList(
-//                 new Cliente(null, "Samira", "11884557453", "32391315401"),
-//                 new Cliente(null, "Leandra", "21880084323", "92312315401")
-//         );
+        mockMvc.perform(post("/restaurante/mesas")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(mesas)))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Mesas criadas com sucesso."));
+    }
 
-//         String jsonClientes = objectMapper.writeValueAsString(clientes);
+    @Test
+    public void testCriarProdutos() throws Exception {
+        List<Produto> produtos = Arrays.asList(produto1, produto2, produto3);
 
-//         ResultActions resultActions = mockMvc.perform(post("/restaurante/clientes")
-//                 .contentType(MediaType.APPLICATION_JSON)
-//                 .content(jsonClientes));
+        mockMvc.perform(post("/restaurante/produtos")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(produtos)))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Os produtos do restaurante foram iniciados"));
+    }
 
-//         resultActions.andExpect(status().isOk());
-//     }
+    @Test
+    public void testCriarMenuAberto() throws Exception {
+        Set<Produto> produtos = new HashSet<>(Arrays.asList(produto1, produto2, produto3));
 
-//     @Test
-//     public void testCriarMesa() throws Exception {
-//         Mesa mesa = new Mesa();
-//         mesa.setCapacidade(4);
+        mockMvc.perform(post("/restaurante/menu/aberto")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(produtos)))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Menu aberto criado com sucesso!"));
+    }
 
-//         String jsonMesa = objectMapper.writeValueAsString(mesa);
+    @Test
+    public void testCriarMenuFechado() throws Exception {
+        Set<Produto> produtos = new HashSet<>(Arrays.asList(produto1, produto2));
 
-//         ResultActions resultActions = mockMvc.perform(post("/restaurante/mesa")
-//                 .contentType(MediaType.APPLICATION_JSON)
-//                 .content(jsonMesa));
+        mockMvc.perform(post("/restaurante/menu/fechado")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(produtos)))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Menu fechado criado com sucesso!"));
+    }
 
-//         resultActions.andExpect(status().isOk());
-//     }
+    @Test
+    public void testCriarRequisicao() throws Exception {
+        mockMvc.perform(post("/restaurante/{idCliente}/{quantPessoas}", 1, 4)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Mesa alocada para a requisição com sucesso!"));
+    }
 
-//     @Test
-//     public void testCriarMesasEmLote() throws Exception {
-//         List<Mesa> mesas = Arrays.asList(
-//                 new Mesa(4),
-//                 new Mesa(6),
-//                 new Mesa(8)
-//         );
+    @Test
+    public void testAtribuirMenuParaRequisicao() throws Exception {
+        mockMvc.perform(post("/restaurante/atribuir-menu/{idRequisicao}/{idMenu}", 1, 1)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Menu atribuído à requisição com sucesso!"));
+    }
 
-//         String jsonMesas = objectMapper.writeValueAsString(mesas);
+    @Test
+    public void testAdicionarProdutoAoPedido() throws Exception {
+        mockMvc.perform(post("/restaurante/adicionar-produto/{idRequisicao}/{idProduto}", 1, 1)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Produto adicionado ao pedido com sucesso."));
+    }
 
-//         ResultActions resultActions = mockMvc.perform(post("/restaurante/mesas")
-//                 .contentType(MediaType.APPLICATION_JSON)
-//                 .content(jsonMesas));
-
-//         resultActions.andExpect(status().isOk());
-//     }
-
-//     /*@Test
-//     public void testCriarMenu() throws Exception {
-//         Menu menu = new Menu();
-
-//         String jsonMenu = objectMapper.writeValueAsString(menu);
-
-//         ResultActions resultActions = mockMvc.perform(post("/restaurante/menus")
-//                 .contentType(MediaType.APPLICATION_JSON)
-//                 .content(jsonMenu));
-
-//         resultActions.andExpect(status().isOk());
-//     }*/
-// }
+    @Test
+    public void testDesalocarMesaDeRequisicao() throws Exception {
+        mockMvc.perform(put("/restaurante/desalocar/{requisicaoId}", 1)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Mesa desalocada. Requisição finalizada com sucesso!\nTotal do Pedido: "));
+    }
+}
