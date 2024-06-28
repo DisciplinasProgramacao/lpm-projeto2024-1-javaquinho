@@ -1,180 +1,210 @@
 package javaquinho.comidinhas.models;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import javaquinho.comidinhas.excecoes.LimiteProdutosException;
+import javaquinho.comidinhas.repositories.ClienteRepository;
+import javaquinho.comidinhas.repositories.MesaRepository;
+import javaquinho.comidinhas.repositories.ProdutoRepository;
+import javaquinho.comidinhas.repositories.MenuRepository;
+import javaquinho.comidinhas.repositories.RequisicaoRepository;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-@Entity
-@Table(name = "restaurante")
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Component
+/**
+ * Serviço que gerencia operações relacionadas ao restaurante. Criação de
+ * clientes, mesas, produtos, requisições e menus.
+ */
+@Service
 public class Restaurante {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", unique = true, nullable = false)
-    private Long idRestaurante;
+    @Autowired
+    private ClienteRepository clienteRepository;
 
-    @Column(name = "nome", nullable = false)
-    private String name;
+    @Autowired
+    private MesaRepository mesaRepository;
 
-    @OneToMany(mappedBy = "restaurante", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private List<Mesa> mesas = new ArrayList<>();
+    @Autowired
+    private MenuRepository menuRepository;
 
-    @OneToMany(mappedBy = "restaurante", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private List<Requisicao> listaRequisicao = new ArrayList<>();
+    @Autowired
+    private RequisicaoRepository requisicaoRepository;
 
-    @OneToMany(mappedBy = "restaurante", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private List<Cliente> listaClientes = new ArrayList<>();
+    @Autowired
+    private ProdutoRepository produtoRepository;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private Menu menu;
+    private Queue<Requisicao> filaEspera = new LinkedList<>();
 
-    public Restaurante(String nome) {
-        this.name = nome;
-        this.listaRequisicao = new ArrayList<>();
-        this.listaClientes = new ArrayList<>();
-        iniciaMesas();
-        this.menu = new Menu();
+    /**
+     * Cria novos clientes no sistema através de uma lista de objetos.
+     * 
+     * @param clientes Lista de clientes a serem criados
+     * @return Lista de clientes criados
+     */
+    public List<Cliente> criarClientes(List<Cliente> clientes) {
+        return clienteRepository.saveAll(clientes);
     }
 
-    // Inicia as mesas do restaurante
-    private void iniciaMesas() {
-        int[] capacidades = { 4, 6, 8 };
-        int[] quant = { 4, 4, 2 };
+    /**
+     * Cria novas mesas no restaurante, contabilizando as que já existem + as que
+     * estão sendo criadas.
+     * 
+     * @param mesas Lista de mesas a serem criadas
+     * @return Lista de mesas criadas
+     * @throws IllegalStateException Se o número máximo de mesas (10) for excedido
+     */
+    public List<Mesa> criarMesas(List<Mesa> mesas) {
+        long count = mesaRepository.count();
+        if (count + mesas.size() > 10) {
+            throw new IllegalStateException("Número máximo de mesas atingido.");
+        }
+        return mesaRepository.saveAll(mesas);
+    }
 
-        for (int i = 0; i < quant.length; i++) {
-            int quantidade = quant[i];
-            for (int j = 0; j < quantidade; j++) {
-                Mesa mesa = new Mesa(null, capacidades[i], false, this);
-                mesas.add(mesa);
+    /**
+     * Cria novos produtos no restaurante.
+     * 
+     * @param produtos Lista de produtos a serem criados
+     * @return Mensagem indicando a criação dos produtos
+     */
+    public String criarProdutos(List<Produto> produtos) {
+        produtoRepository.saveAll(produtos);
+        return "Os produtos do restaurante foram iniciados";
+    }
+
+    /**
+     * Tenta alocar uma mesa para uma requisição com base na capacidade necessária.
+     * 
+     * @param requisicaoId ID da requisição
+     * @return Mensagem indicando o resultado da alocação da mesa
+     */
+    public String alocarMesaParaRequisicao(Long requisicaoId) {
+        Requisicao requisicao = requisicaoRepository.findById(requisicaoId).orElse(null);
+        if (requisicao == null) {
+            return "Requisição não encontrada.";
+        }
+
+        int quantPessoas = requisicao.getQuantPessoas();
+        List<Mesa> mesasDisponiveis = mesaRepository.findByCapacidadeAndOcupada(quantPessoas, false);
+
+        if (mesasDisponiveis.isEmpty()) {
+            filaEspera.add(requisicao);
+            return "Não há mesas disponíveis. A requisição foi adicionada à fila de espera.";
+        }
+
+        Mesa mesa = null;
+        for (Mesa m : mesasDisponiveis) {
+            if (m.getCapacidade() >= quantPessoas) {
+                mesa = m;
+                break;
             }
         }
+
+        if (mesa == null) {
+            filaEspera.add(requisicao);
+            return "Não há mesas disponíveis com capacidade suficiente. A requisição foi adicionada à fila de espera.";
+        }
+
+        requisicao.alocarMesa(mesa);
+        requisicaoRepository.save(requisicao);
+        return "Mesa alocada para a requisição com sucesso!";
     }
 
+    /**
+     * Cria uma requisição para um cliente, tentando alocá-lo numa mesa
+     * automaticamente.
+     * Se não houver mesas disponíveis, adiciona a requisição à fila de espera.
+     * 
+     * @param requisicao Requisição a ser criada
+     * @return Mensagem indicando o resultado da criação da requisição
+     * @throws IllegalArgumentException Se o cliente for nulo ou a quantidade de
+     *                                  pessoas for menor que 1
+     */
+    public String criarRequisicao(Requisicao requisicao) {
+        if (requisicao.getCliente() == null || requisicao.getQuantPessoas() < 1) {
+            throw new IllegalArgumentException(
+                    "Cliente não pode ser nulo e a quantidade de pessoas deve ser pelo menos 1.");
+        }
 
-    // Encontra a mesa pelo Id
-    private Mesa getMesa(Long idMesa) {
-        return mesas.stream()
-                .filter(mesa -> mesa.getIdMesa().equals(idMesa))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Mesa não encontrada"));
+        requisicao = requisicaoRepository.save(requisicao);
+
+        String resultadoAlocacao = alocarMesaParaRequisicao(requisicao.getId());
+
+        if (resultadoAlocacao.startsWith("Mesa alocada")) {
+            requisicao.setEntrada(LocalDateTime.now());
+            requisicaoRepository.save(requisicao);
+        }
+
+        if (!resultadoAlocacao.startsWith("Mesa alocada")) {
+            filaEspera.add(requisicao);
+        }
+
+        return resultadoAlocacao;
     }
 
-    // Função que processa a fila de atendimento, alocando as requisições nas mesas
-    // disponíveis
-    public void processarFilaRequisicao() {
-        listaRequisicao.stream()
-                .filter(r -> !r.getAtendida())
-                .forEach(r -> {
-                    mesas.stream()
-                            .filter(m -> m.estahLiberada(r.getQuantPessoas()))
-                            .findFirst()
-                            .ifPresent(m -> {
-                                r.alocarMesa(m);
-                                m.ocupar();
-                            });
-                });
-    }
+    /**
+     * Finaliza uma requisição, desalocando a mesa e, se houver, realocando a
+     * próxima da fila de espera.
+     * Calcula o total do pedido ao finalizar.
+     * 
+     * @param requisicaoId ID da requisição a ser finalizada
+     * @return Mensagem indicando o resultado da finalização da requisição e o total
+     *         do pedido
+     */
+    public String desalocarMesaDeRequisicao(Long requisicaoId) {
+        Requisicao requisicao = requisicaoRepository.findById(requisicaoId).orElse(null);
+        if (requisicao == null) {
+            return "Requisição não encontrada.";
+        }
 
-    // Cria uma requisição a partir de um CPF e quantidade de pessoas
-    public void criarRequisicao(String cpf, int qntPessoas) {
-        Cliente cliente = listaClientes.stream()
-                .filter(c -> c.getCpf().equals(cpf))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
-        Requisicao requisicao = new Requisicao(cliente, qntPessoas, this);
-        listaRequisicao.add(requisicao);
-        processarFilaRequisicao();
-    }
+        if (requisicao.getMesa() == null) {
+            return "Nenhuma mesa está alocada a esta requisição.";
+        }
 
+        try {
+            requisicao.encerrar();
+            requisicaoRepository.save(requisicao);
 
-    // Verifica se o cliente já existe
-    public Boolean clienteExiste(String cpf) {
-        return listaClientes.stream().anyMatch(cliente -> cliente.getCpf().equals(cpf));
-    }
+            if (!filaEspera.isEmpty()) {
+                Requisicao proximaRequisicao = filaEspera.poll();
+                alocarMesaParaRequisicao(proximaRequisicao.getId());
+            }
 
-    // Cadastrar novo cliente ao restaurante
-    public void newCliente(String nome, String telContato, String cpf) {
-        if (!clienteExiste(cpf)) {
-            Cliente cliente = new Cliente(null, nome, telContato, cpf, this);
-            listaClientes.add(cliente);
-        } else
-            throw new RuntimeException("Cliente já cadastrado");
-    }
-
-    // Localizar cliente pelo CPF
-    public Cliente localizarCliente(String cpf) {
-        return listaClientes.stream()
-                .filter(cliente -> cliente.getCpf().equals(cpf))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
-    }
-
-    // Encerra uma requisição através do número da mesa que ela está alocada
-    public void encerrarAtendimento(Long idMesa) {
-        Requisicao requisicao = listaRequisicao.stream()
-                .filter(r -> r.ehDaMesa(idMesa))
-                .findFirst()
-                .orElse(null);
-        if (requisicao != null) {
-            requisicao.encerrar(getMesa(idMesa));
-            processarFilaRequisicao();
+            double totalPedido = requisicao.getPedido().getSomarTotal();
+            return "Mesa desalocada. Requisição finalizada com sucesso!\nTotal do Pedido: " + totalPedido;
+        } catch (IllegalStateException e) {
+            return e.getMessage();
         }
     }
 
-    // Lista de requisições já atendidas
-    public void getHistoricoAtendimento() {
-        listaRequisicao.stream()
-                .filter(r -> r.getEncerrada());
+    /**
+     * Cria um menu aberto com os produtos especificados.
+     * 
+     * @param produtos Conjunto de produtos do menu aberto
+     * @return Mensagem indicando o resultado da criação do menu aberto
+     */
+    public String criarMenuAberto(Set<Produto> produtos) {
+        MenuAberto menuAberto = new MenuAberto(produtos);
+        menuRepository.save(menuAberto);
+        return "Menu aberto criado com sucesso!";
     }
 
-    // Lista de requisições não atendidas
-    public void filaDeEspera() {
-        listaRequisicao.stream()
-                .filter(r -> !r.getAtendida());
+    /**
+     * Cria um menu fechado com os produtos especificados.
+     * 
+     * @param produtos Conjunto de produtos do menu fechado
+     * @return Mensagem indicando o resultado da criação do menu fechado
+     * @throws LimiteProdutosException Se o número de produtos no menu fechado
+     *                                 exceder o limite permitido
+     */
+    public String criarMenuFechado(Set<Produto> produtos) throws LimiteProdutosException {
+        MenuFechado menuFechado = new MenuFechado(produtos);
+        menuRepository.save(menuFechado);
+        return "Menu fechado criado com sucesso!";
     }
-
-    // Localização de requisição pelo cpf
-    public Requisicao localizarRequisicaoEmAtendimento(String cpf){
-        Cliente c = localizarCliente(cpf);
-        return listaRequisicao.stream()
-        .filter(r -> r.getAtendida())
-        .filter(r -> !r.getEncerrada())
-        .filter(r -> r.getCliente().equals(c))
-        .findFirst()
-        .orElseThrow(() -> new RuntimeException("Nenhuma requisisição encontrada"));
-    }
-
-    // // Adicionar produto ao pedido
-    // public void incrementarPedido(String nomeProduto, Long idMesa){
-    //     Mesa mesa = getMesa(idMesa);
-    //     Produto produto = menu.stream()    // ESTE STREAM NÃO ESTÁ FUNCIONANDO
-    //     .filter(p -> p.getNome().equals("nomeProduto"))
-    //     .findFirst()
-    //     .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
-    // }
 }

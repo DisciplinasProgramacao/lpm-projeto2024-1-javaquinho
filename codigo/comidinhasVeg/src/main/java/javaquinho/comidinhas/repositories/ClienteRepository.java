@@ -6,4 +6,6 @@ import javaquinho.comidinhas.models.Cliente;
 
 @Repository
 public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
+
+
 }

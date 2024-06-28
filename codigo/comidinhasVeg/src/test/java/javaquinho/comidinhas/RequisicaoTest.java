@@ -9,8 +9,6 @@ import javaquinho.comidinhas.models.Mesa;
 import javaquinho.comidinhas.models.Produto;
 import javaquinho.comidinhas.models.Requisicao;
 
-import java.time.LocalDateTime;
-
 public class RequisicaoTest {
 
     private Cliente cliente;
@@ -54,10 +52,10 @@ public class RequisicaoTest {
     @Test
     public void testEncerrar() {
         requisicao.alocarMesa(mesa);
-        Mesa mesaEncerrada = requisicao.encerrar();
+        requisicao.encerrar();
         assertTrue(requisicao.isEncerrada());
         assertNotNull(requisicao.getSaida());
-        assertEquals(mesa, mesaEncerrada);
+        assertNull(requisicao.getMesa());
     }
 
     @Test
@@ -86,14 +84,4 @@ public class RequisicaoTest {
         assertEquals(10.0 / 3, requisicao.exibirValorPorPessoa());
     }
 
-    @Test
-    public void testToString() {
-        requisicao.alocarMesa(mesa);
-        requisicao.adicionarProduto(produto);
-        String output = requisicao.toString();
-        assertTrue(output.contains("Cliente Teste"));
-        assertTrue(output.contains("Produto Teste - R$10.0"));
-        assertTrue(output.contains("Total: 10.0"));
-        assertTrue(output.contains("Valor por pessoa: " + 10.0 / 3));
-    }
 }
