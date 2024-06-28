@@ -51,7 +51,7 @@ Cliente Controller - Ian
 Sem Controller nem classe Pedido - Ian - 8,5 (nota considerando implementação atrasada)
 
 # Sprint 3 - Até 05/junho
-  - Nota de grupo (6 pontos)
+  - Nota de grupo **nota como entrega em atraso**
     - Modelo atualizado - menu fechado
   
   - Nota individual (14 pontos)	
@@ -63,4 +63,28 @@ Corrigido: classe Pedido e Pedido controller - Ian (nota lançada na sprint ante
 
 Diagrama sem menu fechado ou pedido fechado - 0 
 
-_A implementacao do master está praticamente igual ao fim da sprint 2. Vocês ficam sem nota aqui por enquanto para serem avaliados proporcionalmente ao que foi melhorado na sprint 4, mas considerando como entrega em atraso_
+~~A implementacao do master está praticamente igual ao fim da sprint 2. Vocês ficam sem nota aqui por enquanto para serem avaliados proporcionalmente ao que foi melhorado na sprint 4, mas considerando como entrega em atraso~~
+
+_Atualização: notas replicadas da sprint 4, com 30% de penalização por atraso_
+
+
+## Sprint 4 - Apresentação em 24/06
+  - Nota de grupo 6/6 pontos
+	- Modelo atualizado
+	- Apresentação
+	
+  - Nota individual (14 pontos)
+    - Ajustes do último quadro "Projeto GitHub"
+    - Correções das sprints anteriores
+
+### Commits SP4
+Runner/Main (Joao): funcionalidades ok. Modularidade ruim (mesmo o código antigo de restaurante já tinha funcionalidades que não foram aproveitadas como modelo). 11,2
+Documentacao (Ian): ok
+Controller (Ian): uso de optional... 11
+Controller (Roberta): Getclassname não é legal
+PedidoFechado (Roberta): ok
+Documentacao (Roberta): ok  12,6
+Requisicao (Saulo): faltou encerrar o pedido na requisicao. não pode transformar pedido em nulo (perda de dados!!!). catch "exception" e lança "runtime".  8,4
+Documentacao (Eduardo) 	
+Controller(Eduardo): ok 12
+Restaurante (Hélio): fazendo lógica de mesa. processar com processo pouco legível. uso de keyset. somente uma exceção e runtime.  9,8
